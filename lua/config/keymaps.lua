@@ -1,0 +1,133 @@
+-- [[ Basic Keymaps ]]
+--  See `:help vim.keymap.set()`
+
+-- Clear highlights on search when pressing <Esc> in normal modefix
+--  See `:help hlsearch`
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
+
+local save_file = function()
+	-- Show a warning if no buffer is open
+	if vim.fn.empty(vim.fn.expand("%:t")) == 1 then
+		vim.notify("No file to save.", vim.log.levels.WARN, { title = "Warning" })
+		return
+	end
+
+	-- Save the file
+	vim.cmd("write")
+	--	Show a success message with file path
+	local file_path = vim.fn.expand("%:p")
+	require("notify")(file_path, "INFO", {
+		title = "File Saved",
+		timeout = 2000,
+	})
+end
+
+-- -- Save file with <C-s> in normal and insert mode
+-- vim.keymap.set("n", "<C-s>", save_file, { desc = "Save file" })
+-- vim.keymap.set("i", "<C-s>", save_file, { desc = "Save file" })
+
+-- Diagnostic keymaps
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open diagnostic [E]rror" })
+
+-- Code action keymaps
+vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code [C]ode Action" })
+
+-- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
+-- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
+-- is not what someone will guess without a bit more experience.
+--
+-- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
+-- or just use <C-\><C-n> to exit terminal mode
+vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+
+-- TIP: Disable arrow keys in normal mode
+vim.keymap.set("n", "<left>", '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set("n", "<right>", '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set("n", "<up>", '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set("n", "<down>", '<cmd>echo "Use j to move!!"<CR>')
+
+-- Keybinds to make split navigation easier.
+--  Use CTRL+<hjkl> to switch between windows
+--
+--  See `:help wincmd` for a list of all window commands
+vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+
+-- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
+vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
+vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
+vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
+vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+-- [[ Basic Autocommands ]]
+--  See `:help lua-guide-autocommands`
+
+-- Highlight when yanking (copying) text
+--  Try it with `yap` in normal mode
+--  See `:help vim.highlight.on_yank()`
+vim.api.nvim_create_autocmd("TextYankPost", {
+	desc = "Highlight when yanking (copying) text",
+	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+	callback = function()
+		vim.highlight.on_yank()
+	end,
+})
+
+local delete_without_mutating_register = function()
+	-- Delete the current line without affecting the default register
+	--  See `:help vim.fn.delete()`
+	local current_line = vim.api.nvim_get_current_line()
+	vim.api.nvim_set_current_line("")
+	vim.fn.delete(current_line)
+end
+
+-- Delete the current line without affecting the default register
+vim.keymap.set("n", "dD", delete_without_mutating_register, { desc = "Delete line without affecting register" })
+
+-- Enable github copilot
+vim.keymap.set("n", "<leader>ec", function()
+	vim.cmd("Copilot enable")
+	require("notify")("Copilot enabled", "INFO", {
+		title = "Copilot",
+		timeout = 2000,
+	})
+end, { desc = "Enable Copilot" })
+vim.keymap.set("n", "<leader>dc", function()
+	vim.cmd("Copilot disable")
+	require("notify")("Copilot disabled", "WARN", {
+		title = "Copilot",
+		timeout = 2000,
+	})
+end, { desc = "Disable Copilot" })
+
+-- Switch between buffers
+vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Switch to next buffer" })
+vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Switch to previous buffer" })
+
+
+
+local function apply_transparency()
+	if vim.g.tokyonight_transparent then
+		vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
+		vim.cmd("hi NormalNC guibg=NONE ctermbg=NONE")
+		vim.cmd("hi SignColumn guibg=NONE")
+		vim.cmd("hi VertSplit guifg=#ff9e64") -- Keep split visible
+	else
+		vim.cmd("hi Normal guibg=#1f2335 ctermbg=NONE")
+		vim.cmd("hi NormalNC guibg=#1f2335 ctermbg=NONE")
+		vim.cmd("hi SignColumn guibg=#1f2335")
+		vim.cmd("hi VertSplit guifg=#ff9e64") -- Still keep it visible
+	end
+end
+
+
+vim.keymap.set("n", "<leader>tt", function()
+	-- vim.g.tokyonight_transparent = not vim.g.tokyonight_transparent
+	apply_transparency()
+	print("Transparency: " .. (vim.g.tokyonight_transparent and "ON" or "OFF"))
+end, { desc = "Toggle Transparency" })
