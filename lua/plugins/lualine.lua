@@ -53,10 +53,10 @@ return {
 					"filetype",
 					"diff",
 					"diagnostics",
-					{
-						get_lsp_clients,
-						color = { fg = "#ff9e64" },
-					},
+					-- {
+					-- 	get_lsp_clients,
+					-- 	color = { fg = "#ff9e64" },
+					-- },
 				},
 				lualine_y = { "progress" },
 				lualine_z = { "location" },

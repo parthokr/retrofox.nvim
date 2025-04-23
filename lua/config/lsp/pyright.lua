@@ -18,6 +18,9 @@ vim.lsp.config["pyright"] = {
 				useLibraryCodeForTypes = true,
 			},
 		},
+		signatureHelp = {
+			enabled = true,
+		},
 	},
 }
 

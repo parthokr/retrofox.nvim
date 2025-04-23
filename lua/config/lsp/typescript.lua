@@ -18,7 +18,10 @@ vim.lsp.config.typescript = {
 		},
 		javascript = {
 			inlayHints = inlayHints,
-		}
+		},
+		signatureHelp = {
+			enabled = true,
+		},
 	},
 }
 

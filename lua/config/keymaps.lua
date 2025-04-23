@@ -5,27 +5,6 @@
 --  See `:help hlsearch`
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 
-local save_file = function()
-	-- Show a warning if no buffer is open
-	if vim.fn.empty(vim.fn.expand("%:t")) == 1 then
-		vim.notify("No file to save.", vim.log.levels.WARN, { title = "Warning" })
-		return
-	end
-
-	-- Save the file
-	vim.cmd("write")
-	--	Show a success message with file path
-	local file_path = vim.fn.expand("%:p")
-	require("notify")(file_path, "INFO", {
-		title = "File Saved",
-		timeout = 2000,
-	})
-end
-
--- -- Save file with <C-s> in normal and insert mode
--- vim.keymap.set("n", "<C-s>", save_file, { desc = "Save file" })
--- vim.keymap.set("i", "<C-s>", save_file, { desc = "Save file" })
-
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })

@@ -68,6 +68,7 @@ vim.opt.foldenable = false
 
 -- Set tab width
 vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 
 -- Do not affect register when deleting a character
 vim.keymap.set("n", "x", '"_x', opts)
