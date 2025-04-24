@@ -87,26 +87,3 @@ end, { desc = "Disable Copilot" })
 -- Switch between buffers
 vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Switch to next buffer" })
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Switch to previous buffer" })
-
-
-
-local function apply_transparency()
-	if vim.g.tokyonight_transparent then
-		vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
-		vim.cmd("hi NormalNC guibg=NONE ctermbg=NONE")
-		vim.cmd("hi SignColumn guibg=NONE")
-		vim.cmd("hi VertSplit guifg=#ff9e64") -- Keep split visible
-	else
-		vim.cmd("hi Normal guibg=#1f2335 ctermbg=NONE")
-		vim.cmd("hi NormalNC guibg=#1f2335 ctermbg=NONE")
-		vim.cmd("hi SignColumn guibg=#1f2335")
-		vim.cmd("hi VertSplit guifg=#ff9e64") -- Still keep it visible
-	end
-end
-
-
-vim.keymap.set("n", "<leader>tt", function()
-	-- vim.g.tokyonight_transparent = not vim.g.tokyonight_transparent
-	apply_transparency()
-	print("Transparency: " .. (vim.g.tokyonight_transparent and "ON" or "OFF"))
-end, { desc = "Toggle Transparency" })

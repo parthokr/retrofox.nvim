@@ -37,11 +37,11 @@ return {
 		-- apply_transparency()
 
 		-- Toggle transparency with <leader>tt
-		vim.keymap.set("n", "<leader>tt", function()
-			-- vim.g.tokyonight_transparent = not vim.g.tokyonight_transparent
-			apply_transparency()
-			print("Transparency: " .. (vim.g.tokyonight_transparent and "ON" or "OFF"))
-		end, { desc = "Toggle Transparency" })
+		-- vim.keymap.set("n", "<leader>tt", function()
+		-- 	-- vim.g.tokyonight_transparent = not vim.g.tokyonight_transparent
+		-- 	apply_transparency()
+		-- 	print("Transparency: " .. (vim.g.tokyonight_transparent and "ON" or "OFF"))
+		-- end, { desc = "Toggle Transparency" })
 
 		-- Optional: Make window separators more visible
 		vim.cmd("highlight WinSeparator guifg=#ff9e64 gui=bold")

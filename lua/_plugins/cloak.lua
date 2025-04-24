@@ -26,5 +26,17 @@ return {
 			-- cloak_ignored_patterns = { "^TIPS:%S*" },
 			debug = false,
 		})
+
+		local toggle = function()
+			local cloak = require("cloak")
+			if cloak.is_enabled() then
+				cloak.disable()
+				print("Cloak disabled")
+			else
+				cloak.enable()
+				print("Cloak enabled")
+			end
+		end
+		vim.keymap.set("n", "<leader>tc", toggle, { desc = "Toggle Cloak" })
 	end,
 }
