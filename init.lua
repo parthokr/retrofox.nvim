@@ -1,6 +1,26 @@
-require("config.lazy")
+require("config.lazy-nvim")
 require("config.options")
 require("config.keymaps")
+
+
+vim.diagnostic.config({
+	virtual_text = {
+		prefix = "●", -- Could be '●', '▎', 'x'
+		spacing = 4,
+	},
+	underline = true,
+	signs = true,
+	update_in_insert = false,
+	severity_sort = false,
+	float = {
+		focusable = true,
+		style = "minimal",
+		border = "rounded",
+		source = "always",
+		header = "",
+		prefix = "",
+	},
+})
 
 local lsp_path = vim.fn.stdpath("config") .. "/lua/config/lsp"
 

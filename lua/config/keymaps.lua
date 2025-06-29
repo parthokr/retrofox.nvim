@@ -87,3 +87,18 @@ end, { desc = "Disable Copilot" })
 -- Switch between buffers
 vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Switch to next buffer" })
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Switch to previous buffer" })
+
+local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {} 
+  opts.border = opts.border or 'rounded'
+  
+  return orig_util_open_floating_preview(contents, syntax, opts, ...) 
+end
+
+-- vim.keymap.set('n', 'K', function()
+-- 	vim.lsp.util.open_floating_preview({
+-- 		width = 80,
+-- 	})
+-- end)

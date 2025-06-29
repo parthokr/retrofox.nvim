@@ -1,30 +1,6 @@
 return {
 	"nvim-lualine/lualine.nvim",
 	config = function()
-		require("lualine").setup({
-			options = {
-				icons_enabled = true,
-				theme = "tokyonight",
-			},
-			sections = {
-				lualine_a = { "mode" },
-				lualine_b = { "branch" },
-				lualine_c = { "filename" },
-				lualine_x = {
-					"encoding",
-					{
-						"fileformat",
-						symbols = { unix = "", dos = "" },
-					},
-					"filetype",
-					"diff",
-					"diagnostics",
-				},
-				lualine_y = { "progress" },
-				lualine_z = { "location" },
-			},
-		})
-
 		-- Add LSP status component
 		local function get_lsp_clients()
 			local clients = vim.lsp.get_active_clients()
@@ -35,15 +11,29 @@ return {
 			for _, client in ipairs(clients) do
 				table.insert(client_names, client.name)
 			end
-			return " " .. table.concat(client_names, " ")
+			return table.concat(client_names, ", ")
 		end
 
-		-- Update lualine configuration to include LSP status
 		require("lualine").setup({
+			options = {
+				icons_enabled = true,
+				theme = "tokyonight",
+			},
 			sections = {
 				lualine_a = { "mode" },
 				lualine_b = { "branch" },
-				lualine_c = { "filename" },
+				lualine_c = {
+					{
+						"filename",
+						path = 1,
+						symbols = {
+							modified = "✎",
+							readonly = "",
+							unnamed = "[No Name]",
+							newfile = "[New File]",
+						},
+					},
+				},
 				lualine_x = {
 					"encoding",
 					{
@@ -55,8 +45,10 @@ return {
 					"diagnostics",
 					-- {
 					-- 	get_lsp_clients,
+					-- 	icon = " LSP",
 					-- 	color = { fg = "#ff9e64" },
 					-- },
+
 				},
 				lualine_y = { "progress" },
 				lualine_z = { "location" },

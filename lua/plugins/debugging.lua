@@ -5,12 +5,16 @@ return {
 		"nvim-neotest/nvim-nio",
 		"theHamsta/nvim-dap-virtual-text",
 		"mfussenegger/nvim-dap-python",
+		"leoluz/nvim-dap-go",
 	},
 	config = function()
 		local dap = require("dap")
 		local dapui = require("dapui")
 
+		-- Python Debugger
 		require("dap-python").setup("python3")
+		-- TODO: add Go debugger
+		require("dap-go").setup()
 		dapui.setup()
 
 		dap.listeners.before["event_initialized"]["dapui_config"] = function()
@@ -43,49 +47,49 @@ return {
 			function()
 				require("dap").toggle_breakpoint()
 			end,
-			desc = "Toggle Breakpoint",
+			desc = "Toggle [D]ebug [B]reakpoint",
 		},
 		{
 			"<leader>dc",
 			function()
 				require("dap").continue()
 			end,
-			desc = "Continue",
+			desc = "[D]ebug [C]ontinue",
 		},
 		{
 			"<leader>di",
 			function()
 				require("dap").step_into()
 			end,
-			desc = "Step Into",
+			desc = "[D]ebug Step [I]nto",
 		},
 		{
-			"<leader>do",
+			"<leader>dO",
 			function()
 				require("dap").step_out()
 			end,
-			desc = "Step Out",
+			desc = "[D]ebug Step [O]ut",
 		},
 		{
 			"<leader>dr",
 			function()
 				require("dap").repl.open()
 			end,
-			desc = "Open REPL",
+			desc = "[D]ebug [R]epl",
 		},
 		{
-			"<leader>ds",
+			"<leader>do",
 			function()
 				require("dap").step_over()
 			end,
-			desc = "Step Over",
+			desc = "[D]ebug [S]tep Over",
 		},
 		{
 			"<leader>dt",
 			function()
 				require("dap").terminate()
 			end,
-			desc = "Terminate",
+			desc = "[D]ebug [T]erminate",
 		},
 	},
 }

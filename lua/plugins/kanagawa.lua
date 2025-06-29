@@ -4,11 +4,11 @@ return {
 		require("kanagawa").setup({
 			compile = false,
 			transparent = false,
-			overrides = function(colors)
+			overrides = function()
 				return {
 					["@markup.link.url.markdown_inline"] = { link = "Special" }, -- (url)
 					["@markup.link.label.markdown_inline"] = { link = "WarningMsg" }, -- [label]
-					["@markup.italic.markdown_inline"] = { link = "Exception" }, -- *italic*
+					["@markup.italic.markdown_inline"] = { link = "Exception" }, -- *()*
 					["@markup.raw.markdown_inline"] = { link = "String" }, -- `code`
 					["@markup.list.markdown"] = { link = "Function" }, -- + list
 					["@markup.quote.markdown"] = { link = "Error" },   -- > blockcode
