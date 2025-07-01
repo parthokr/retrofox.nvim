@@ -15,13 +15,13 @@ return {
 
 			local hooks = require("ibl.hooks")
 			hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-				vim.api.nvim_set_hl(0, "Gray1", { fg = "#2e2e2e", nocombine = true })
-				vim.api.nvim_set_hl(0, "Gray2", { fg = "#3a3a3a", nocombine = true })
-				vim.api.nvim_set_hl(0, "Gray3", { fg = "#464646", nocombine = true })
-				vim.api.nvim_set_hl(0, "Gray4", { fg = "#525252", nocombine = true })
-				vim.api.nvim_set_hl(0, "Gray5", { fg = "#5e5e5e", nocombine = true })
-				vim.api.nvim_set_hl(0, "Gray6", { fg = "#6a6a6a", nocombine = true })
-				vim.api.nvim_set_hl(0, "Gray7", { fg = "#767676", nocombine = true })
+				vim.api.nvim_set_hl(0, "Gray1", { fg = "#3e3e3e" })
+				vim.api.nvim_set_hl(0, "Gray2", { fg = "#484848" })
+				vim.api.nvim_set_hl(0, "Gray3", { fg = "#525252" })
+				vim.api.nvim_set_hl(0, "Gray4", { fg = "#5c5c5c" })
+				vim.api.nvim_set_hl(0, "Gray5", { fg = "#666666" })
+				vim.api.nvim_set_hl(0, "Gray6", { fg = "#707070" })
+				vim.api.nvim_set_hl(0, "Gray7", { fg = "#7a7a7a" })
 			end)
 
 			-- Register hooks for specific filetypes
@@ -29,7 +29,7 @@ return {
 
 			require("ibl").setup({
 				indent = {
-					char = "│",
+					char = "¦",
 					highlight = highlights,
 				},
 				scope = {

@@ -14,6 +14,14 @@ return {
 			return table.concat(client_names, ", ")
 		end
 
+		local function macro_recording()
+			local recording_register = vim.fn.reg_recording()
+			if recording_register == "" then
+				return ""
+			else
+				return "Recording @" .. recording_register
+			end
+		end
 		require("lualine").setup({
 			options = {
 				icons_enabled = true,
@@ -33,6 +41,7 @@ return {
 							newfile = "[New File]",
 						},
 					},
+					macro_recording,
 				},
 				lualine_x = {
 					"encoding",
