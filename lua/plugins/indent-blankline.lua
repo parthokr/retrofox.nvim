@@ -22,6 +22,7 @@ return {
 				vim.api.nvim_set_hl(0, "Gray5", { fg = "#666666" })
 				vim.api.nvim_set_hl(0, "Gray6", { fg = "#707070" })
 				vim.api.nvim_set_hl(0, "Gray7", { fg = "#7a7a7a" })
+				vim.api.nvim_set_hl(0, "IblActiveScope", { fg = "#f9e2af" })
 			end)
 
 			-- Register hooks for specific filetypes
@@ -34,7 +35,7 @@ return {
 				},
 				scope = {
 					enabled = true,
-					highlight = highlights,
+					highlight = "IblActiveScope",
 					show_start = false,
 					show_end = false,
 					show_exact_scope = true,
