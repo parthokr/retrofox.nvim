@@ -11,7 +11,6 @@ vim.lsp.config["go"] = {
 			completeUnimported = true,
 			gofumpt = true,
 			analyses = {
-				fieldalignment = true,
 				nilness = true,
 				unusedparams = true,
 				unusedwrite = true,
@@ -22,9 +21,6 @@ vim.lsp.config["go"] = {
 				gc_details = true,
 				test = true,
 				tidy = true,
-			},
-			signatureHelp = {
-				enabled = true,
 			},
 		},
 	},
