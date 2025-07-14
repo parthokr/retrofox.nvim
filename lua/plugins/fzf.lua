@@ -125,7 +125,7 @@ return {
 		end)
 
 		map_cmd("ga", "Code Actions", "LSP Code Actions", function(winopts)
-			fzf.lsp_code_actions({ resume = true, winopts = winopts, fzf_opts = get_fzf_opts(), })
+			fzf.lsp_code_actions({ resume = true, winopts = winopts, fzf_opts = get_fzf_opts(), silent = true, })
 		end)
 
 		-- Git
