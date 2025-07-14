@@ -17,17 +17,37 @@ return {
 		require("dap-go").setup()
 		dapui.setup()
 
-		dap.adapters.codelldb = {
-			type = "executable",
-			command = "codelldb", -- or if not in $PATH: "/absolute/path/to/codelldb"
+		-- dap.adapters.codelldb = {
+		-- 	type = "executable",
+		-- 	command = "codelldb", -- or if not in $PATH: "/absolute/path/to/codelldb"
+		--
+		-- 	-- On windows you may have to uncomment this:
+		-- 	-- detached = false,
+		-- }
+		-- dap.configurations.cpp = {
+		-- 	{
+		-- 		name = "Launch file",
+		-- 		type = "codelldb",
+		-- 		request = "launch",
+		-- 		program = function()
+		-- 			return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+		-- 		end,
+		-- 		cwd = '${workspaceFolder}',
+		-- 		stopOnEntry = false,
+		-- 	},
+		-- }
 
-			-- On windows you may have to uncomment this:
-			-- detached = false,
+		-- C/C++/Rust Debugger (lldb-dap)
+		dap.adapters.lldb = {
+			type = "executable",
+			command = "lldb-dap", -- Adjust this path if necessary
+			name = "lldb",
 		}
+
 		dap.configurations.cpp = {
 			{
 				name = "Launch file",
-				type = "codelldb",
+				type = "lldb",
 				request = "launch",
 				program = function()
 					return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
@@ -88,7 +108,7 @@ return {
 			desc = "[D]ebug Step [I]nto",
 		},
 		{
-			"<leader>dO",
+			"<leader>do",
 			function()
 				require("dap").step_out()
 			end,
@@ -102,11 +122,18 @@ return {
 			desc = "[D]ebug [R]epl",
 		},
 		{
-			"<leader>do",
+			"<leader>dj",
 			function()
 				require("dap").step_over()
 			end,
 			desc = "[D]ebug [S]tep Over",
+		},
+		{
+			"<leader>du",
+			function()
+				require("dapui").toggle()
+			end,
+			desc = "[D]ebug [U]I",
 		},
 		{
 			"<leader>dt",
