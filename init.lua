@@ -9,7 +9,20 @@ vim.diagnostic.config({
 		spacing = 4,
 	},
 	underline = true,
-	signs = true,
+	signs = {
+		text = {
+			error = "",
+			warn = "",
+			info = "",
+			hint = "",
+		},
+		numhl = {
+			[vim.diagnostic.severity.ERROR] = "ErrorMsg",
+			[vim.diagnostic.severity.WARN] = "WarningMsg",
+			[vim.diagnostic.severity.INFO] = "Normal",
+			[vim.diagnostic.severity.HINT] = "Normal",
+		}
+	},
 	update_in_insert = false,
 	severity_sort = false,
 	float = {
