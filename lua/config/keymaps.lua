@@ -76,7 +76,7 @@ vim.keymap.set("n", "<leader>ec", function()
 		timeout = 2000,
 	})
 end, { desc = "Enable Copilot" })
-vim.keymap.set("n", "<leader>dc", function()
+vim.keymap.set("n", "<leader>dC", function()
 	vim.cmd("Copilot disable")
 	require("notify")("Copilot disabled", "WARN", {
 		title = "Copilot",
