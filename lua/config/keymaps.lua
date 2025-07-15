@@ -91,10 +91,10 @@ vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Swit
 local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
 
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-  opts = opts or {} 
-  opts.border = opts.border or 'rounded'
-  
-  return orig_util_open_floating_preview(contents, syntax, opts, ...) 
+	opts = opts or {}
+	opts.border = opts.border or 'rounded'
+
+	return orig_util_open_floating_preview(contents, syntax, opts, ...)
 end
 
 -- vim.keymap.set('n', 'K', function()
@@ -102,3 +102,45 @@ end
 -- 		width = 80,
 -- 	})
 -- end)
+
+local function compile_and_run_cpp()
+	local file = vim.fn.expand("%:p")
+	local ext = vim.fn.expand("%:e")
+	local valid_exts = { cpp = true, cc = true, ["c++"] = true }
+
+	if not valid_exts[ext] then
+		vim.notify("Not a valid C++ file.", vim.log.levels.WARN)
+		return
+	end
+
+	local output = "./a.out"
+	print("⏳ Compiling " .. file .. "...")
+
+	local compile_cmd = string.format("g++ '%s' -o '%s'", file, output)
+	local compile_result = vim.fn.system(compile_cmd)
+
+	if vim.v.shell_error ~= 0 then
+		print("❌ Compilation failed:\n" .. compile_result)
+		return
+	end
+
+	print(" ")
+
+	vim.notify("✅ Compiled successfully. Running...", vim.log.levels.INFO)
+	vim.fn.system(output)
+
+	-- Reload output.txt if it's open
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		local name = vim.api.nvim_buf_get_name(buf)
+		if name:match("output.txt$") then
+			vim.api.nvim_buf_call(buf, function()
+				vim.cmd("checktime")
+			end)
+		end
+	end
+end
+
+vim.keymap.set("n", "<leader><space>", compile_and_run_cpp, { desc = "Compile & Run C++" })
+
+-- Keymap: <leader><space> in normal mode
+vim.keymap.set("n", "<leader><space>", compile_and_run_cpp, { desc = "Compile & Run C++" })
