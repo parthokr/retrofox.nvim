@@ -8,11 +8,15 @@ return {
 			version = "2.*",
 			dependencies = {
 				"moyiz/blink-emoji.nvim",
+				"rafamadriz/friendly-snippets",
 			},
 			opts = {},
-			-- config = function()
-			-- 	require("config.snippets")
-			-- end,
+			config = function()
+				require("luasnip.loaders.from_vscode").lazy_load()
+				require("luasnip.loaders.from_vscode").lazy_load({
+					paths = { "~/.config/nvim/snippets" },
+				})
+			end,
 		},
 		"folke/lazydev.nvim",
 	},
@@ -22,6 +26,7 @@ return {
 			default = { "lsp", "path", "snippets", "buffer", "lazydev" },
 			providers = {
 				lazydev = { module = "lazydev.integrations.blink", score_offset = 100 },
+				path = { score_offset = 100 },
 			},
 		},
 		-- keymap = {
@@ -38,18 +43,3 @@ return {
 		signature = { enabled = true },
 	},
 }
-
--- return {
--- 	'saghen/blink.cmp',
--- 	version = '1.*',
--- 	-- !Important! Make sure you're using the latest release of LuaSnip
--- 	-- `main` does not work at the moment
--- 	dependencies = { 'L3MON4D3/LuaSnip', version = 'v2.*' },
--- 	opts = {
--- 		snippets = { preset = 'default' },
--- 		-- ensure you have the `snippets` source (enabled by default)
--- 		sources = {
--- 			default = { 'lsp', 'path', 'snippets', 'buffer' },
--- 		},
--- 	}
--- }
