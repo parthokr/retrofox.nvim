@@ -40,8 +40,8 @@ vim.opt.splitbelow = true
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
--- vim.opt.list = true
--- vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+vim.opt.list = true
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = "split"
@@ -68,9 +68,11 @@ vim.opt.foldmethod = "indent"
 -- Prevent from folding by default
 vim.opt.foldenable = false
 
--- Set tab width
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.expandtab = true -- Insert spaces instead of tab chars
+vim.opt.tabstop = 8      -- How many spaces a tab char visually equals
+vim.opt.shiftwidth = 4   -- How many spaces per indent level
+vim.opt.softtabstop = 4  -- How many spaces a tab key inserts
+vim.opt.smarttab = true  -- Insert spaces when pressing tab at the beginning of a line
 
 -- Do not affect register when deleting a character
 vim.keymap.set("n", "x", '"_x', opts)
