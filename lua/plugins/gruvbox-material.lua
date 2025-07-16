@@ -1,4 +1,4 @@
 return {
-	"https://github.com/sainnhe/gruvbox-material",
-	priority = 1000,
+    "https://github.com/sainnhe/gruvbox-material",
+    priority = 1000,
 }
