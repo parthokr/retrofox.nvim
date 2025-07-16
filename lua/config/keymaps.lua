@@ -146,3 +146,14 @@ vim.keymap.set("n", "<leader><space>", compile_and_run_cpp, { desc = "Compile & 
 
 -- Keymap: <leader><space> in normal mode
 vim.keymap.set("n", "<leader><space>", compile_and_run_cpp, { desc = "Compile & Run C++" })
+
+
+function CreateCPLayout()
+    local curr_win = vim.api.nvim_get_current_win()
+    vim.cmd("vsplit input.txt")
+    vim.cmd("split")
+    vim.cmd("term watch -n 0.1 'cat output.txt'")
+    vim.api.nvim_set_current_win(curr_win)
+end
+
+vim.keymap.set("n", "<leader>cp", CreateCPLayout, { desc = "Create CP Layout" })
