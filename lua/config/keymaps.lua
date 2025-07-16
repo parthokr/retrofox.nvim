@@ -50,19 +50,19 @@ vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
 vim.api.nvim_create_autocmd("TextYankPost", {
-	desc = "Highlight when yanking (copying) text",
-	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
-	callback = function()
-		vim.highlight.on_yank()
-	end,
+    desc = "Highlight when yanking (copying) text",
+    group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+    callback = function()
+        vim.highlight.on_yank()
+    end,
 })
 
 local delete_without_mutating_register = function()
-	-- Delete the current line without affecting the default register
-	--  See `:help vim.fn.delete()`
-	local current_line = vim.api.nvim_get_current_line()
-	vim.api.nvim_set_current_line("")
-	vim.fn.delete(current_line)
+    -- Delete the current line without affecting the default register
+    --  See `:help vim.fn.delete()`
+    local current_line = vim.api.nvim_get_current_line()
+    vim.api.nvim_set_current_line("")
+    vim.fn.delete(current_line)
 end
 
 -- Delete the current line without affecting the default register
@@ -70,18 +70,18 @@ vim.keymap.set("n", "dD", delete_without_mutating_register, { desc = "Delete lin
 
 -- Enable github copilot
 vim.keymap.set("n", "<leader>ec", function()
-	vim.cmd("Copilot enable")
-	require("notify")("Copilot enabled", "INFO", {
-		title = "Copilot",
-		timeout = 2000,
-	})
+    vim.cmd("Copilot enable")
+    require("notify")("Copilot enabled", "INFO", {
+        title = "Copilot",
+        timeout = 2000,
+    })
 end, { desc = "Enable Copilot" })
 vim.keymap.set("n", "<leader>dC", function()
-	vim.cmd("Copilot disable")
-	require("notify")("Copilot disabled", "WARN", {
-		title = "Copilot",
-		timeout = 2000,
-	})
+    vim.cmd("Copilot disable")
+    require("notify")("Copilot disabled", "WARN", {
+        title = "Copilot",
+        timeout = 2000,
+    })
 end, { desc = "Disable Copilot" })
 
 -- Switch between buffers
@@ -91,10 +91,10 @@ vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Swit
 local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
 
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-	opts = opts or {}
-	opts.border = opts.border or 'rounded'
+    opts = opts or {}
+    opts.border = opts.border or 'rounded'
 
-	return orig_util_open_floating_preview(contents, syntax, opts, ...)
+    return orig_util_open_floating_preview(contents, syntax, opts, ...)
 end
 
 -- vim.keymap.set('n', 'K', function()
@@ -104,40 +104,42 @@ end
 -- end)
 
 local function compile_and_run_cpp()
-	local file = vim.fn.expand("%:p")
-	local ext = vim.fn.expand("%:e")
-	local valid_exts = { cpp = true, cc = true, ["c++"] = true }
+    local file = vim.fn.expand("%:p")
+    local ext = vim.fn.expand("%:e")
+    local valid_exts = { cpp = true, cc = true, ["c++"] = true }
 
-	if not valid_exts[ext] then
-		vim.notify("Not a valid C++ file.", vim.log.levels.WARN)
-		return
-	end
+    if not valid_exts[ext] then
+        vim.notify("Not a valid C++ file.", vim.log.levels.WARN)
+        return
+    end
 
-	local output = "./a.out"
-	print("⏳ Compiling " .. file .. "...")
+    vim.cmd("write") -- Save the file before compiling
 
-	local compile_cmd = string.format("g++ '%s' -o '%s'", file, output)
-	local compile_result = vim.fn.system(compile_cmd)
+    local output = "./a.out"
+    print("⏳ Compiling " .. file .. "...")
 
-	if vim.v.shell_error ~= 0 then
-		print("❌ Compilation failed:\n" .. compile_result)
-		return
-	end
+    local compile_cmd = string.format("g++ '%s' -o '%s'", file, output)
+    local compile_result = vim.fn.system(compile_cmd)
 
-	print(" ")
+    if vim.v.shell_error ~= 0 then
+        print("❌ Compilation failed:\n" .. compile_result)
+        return
+    end
 
-	vim.notify("✅ Compiled successfully. Running...", vim.log.levels.INFO)
-	vim.fn.system(output)
+    print(" ")
 
-	-- Reload output.txt if it's open
-	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-		local name = vim.api.nvim_buf_get_name(buf)
-		if name:match("output.txt$") then
-			vim.api.nvim_buf_call(buf, function()
-				vim.cmd("checktime")
-			end)
-		end
-	end
+    vim.notify("✅ Compiled successfully. Running...", vim.log.levels.INFO)
+    vim.fn.system(output)
+
+    -- Reload output.txt if it's open
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        local name = vim.api.nvim_buf_get_name(buf)
+        if name:match("output.txt$") then
+            vim.api.nvim_buf_call(buf, function()
+                vim.cmd("checktime")
+            end)
+        end
+    end
 end
 
 vim.keymap.set("n", "<leader><space>", compile_and_run_cpp, { desc = "Compile & Run C++" })
