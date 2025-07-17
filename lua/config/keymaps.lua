@@ -128,7 +128,7 @@ local function compile_and_run_cpp()
 
     print(" ")
 
-    vim.notify("✅ Compiled successfully. Running...", vim.log.levels.INFO)
+    print("✅ Compilation successful. Running...")
     vim.fn.system(output)
 
     -- Reload output.txt if it's open
@@ -149,6 +149,11 @@ vim.keymap.set("n", "<leader><space>", compile_and_run_cpp, { desc = "Compile & 
 
 
 function CreateCPLayout()
+    if vim.fn.filereadable("input.txt") == 0 or vim.fn.filereadable("output.txt") == 0 then
+        vim.notify("input.txt or output.txt not found in the current directory.", vim.log.levels.ERROR)
+        return
+    end
+
     local curr_win = vim.api.nvim_get_current_win()
     vim.cmd("vsplit input.txt")
     vim.cmd("split")
