@@ -69,7 +69,7 @@ vim.opt.foldmethod = "indent"
 vim.opt.foldenable = false
 
 vim.opt.expandtab = true -- Insert spaces instead of tab chars
-vim.opt.tabstop = 8      -- How many spaces a tab char visually equals
+vim.opt.tabstop = 4      -- How many spaces a tab char visually equals
 vim.opt.shiftwidth = 4   -- How many spaces per indent level
 vim.opt.softtabstop = 4  -- How many spaces a tab key inserts
 vim.opt.smarttab = true  -- Insert spaces when pressing tab at the beginning of a line
