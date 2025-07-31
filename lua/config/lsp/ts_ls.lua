@@ -8,7 +8,7 @@ local inlayHints = {
     includeInlayEnumMemberValueHints = true,
 }
 
-vim.lsp.config.typescript = {
+vim.lsp.config["ts_ls"] = {
     cmd = { "typescript-language-server", "--stdio" },
     filetypes = { "javascript", "typescript", "typescriptreact", "javascriptreact" },
     root_markers = { 'tsconfig.json', 'package.json', 'jsconfig.json', '.git' },
@@ -24,6 +24,7 @@ vim.lsp.config.typescript = {
             enabled = true,
         },
     },
+    single_file_support = true,
 }
 
-vim.lsp.enable("typescript")
+vim.lsp.enable("ts_ls")
