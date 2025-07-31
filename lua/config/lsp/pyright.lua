@@ -17,12 +17,15 @@ vim.lsp.config["pyright"] = {
             analysis = {
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
+                diagnosticMode = "openFilesOnly",
             },
         },
         signatureHelp = {
             enabled = true,
         },
     },
+
+    single_file_support = true,
 }
 
 vim.lsp.enable("pyright")
