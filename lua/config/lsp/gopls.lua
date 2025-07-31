@@ -1,4 +1,4 @@
-vim.lsp.config["go"] = {
+vim.lsp.config["gopls"] = {
     cmd = { "gopls" },
     filetypes = { "go" },
     root_markers = {
@@ -27,4 +27,4 @@ vim.lsp.config["go"] = {
     },
 }
 
-vim.lsp.enable("go")
+vim.lsp.enable("gopls")
