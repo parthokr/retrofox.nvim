@@ -2,18 +2,6 @@ return {
     "nvim-lualine/lualine.nvim",
     config = function()
         -- Add LSP status component
-        local function get_lsp_clients()
-            local clients = vim.lsp.get_active_clients()
-            if #clients == 0 then
-                return ""
-            end
-            local client_names = {}
-            for _, client in ipairs(clients) do
-                table.insert(client_names, client.name)
-            end
-            return table.concat(client_names, ", ")
-        end
-
         local function macro_recording()
             local recording_register = vim.fn.reg_recording()
             if recording_register == "" then
