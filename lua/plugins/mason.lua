@@ -15,6 +15,9 @@ return {
                     "pyright",
                     "ts_ls",
                 },
+                automatic_enable = {
+                    exclude = { "jdtls" },
+                },
                 automatic_installation = true,
             })
         end

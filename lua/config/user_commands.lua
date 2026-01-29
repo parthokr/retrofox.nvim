@@ -9,9 +9,16 @@ vim.api.nvim_create_user_command("LspInfo", function()
     end
     print("Attached LSP clients:")
     for _, client in ipairs(lsp_clients) do
-        print(string.format("Client ID: %d, Name: %s, Filetypes: %s", client.id, client.name,
-            table.concat(client.config.filetypes or {}, ", ")))
+        print(string.format("Name: %s, ID: %d", client.name, client.id))
     end
 end, {
     desc = "Check LSP information"
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "java",
+    callback = function(args)
+        require("config.jdtls.jdtls_setup").setup(args)
+    end,
+    desc = "Set up Java LSP"
 })
