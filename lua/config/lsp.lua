@@ -2,14 +2,15 @@ vim.diagnostic.config({
     virtual_text = {
         prefix = "●", -- Could be '●', '▎', 'x'
         spacing = 4,
+        source = true,
     },
     underline = true,
     signs = {
         text = {
-            error = "",
-            warn = "",
-            info = "",
-            hint = "",
+            error = "",
+            warn = "",
+            info = "",
+            hint = "",
         },
         numhl = {
             [vim.diagnostic.severity.ERROR] = "ErrorMsg",
@@ -19,12 +20,12 @@ vim.diagnostic.config({
         }
     },
     update_in_insert = false,
-    severity_sort = false,
+    severity_sort = true,
     float = {
         focusable = true,
         style = "minimal",
         border = "rounded",
-        source = "always",
+        source = true,
         header = "",
         prefix = "",
     },

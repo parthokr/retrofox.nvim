@@ -44,9 +44,16 @@ return {                -- Useful plugin to show you pending keybinds.
 
         -- Document existing key chains
         spec = {
+            { "<leader>b", group = "[B]uffers" },
+            { "<leader>c", group = "[C]ode" },
+            { "<leader>d", group = "[D]iagnostics / Debug" },
+            { "<leader>e", group = "[E]nable / Edit" },
+            { "<leader>f", group = "[F]ind" },
+            { "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+            { "<leader>r", group = "[R]ename / Resume" },
             { "<leader>s", group = "[S]earch" },
             { "<leader>t", group = "[T]oggle" },
-            { "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+            { "<leader>w", group = "[W]orkspace / Window" },
         },
     },
 }

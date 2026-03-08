@@ -12,12 +12,14 @@ vim.lsp.config["rust_analyzer"] = {
     settings = {
         rust_analyzer = {
             cargo = {
-                loadOutDirsFromCheck = true,
+                buildScripts = {
+                    enable = true,
+                },
             },
             procMacro = {
                 enable = true,
             },
-            checkOnSave = {
+            check = {
                 command = "clippy",
             },
         }

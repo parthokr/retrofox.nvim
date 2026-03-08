@@ -78,3 +78,9 @@ vim.opt.smarttab = true  -- Insert spaces when pressing tab at the beginning of 
 vim.keymap.set("n", "x", '"_x', opts)
 
 vim.opt.autoread = true
+
+-- Global statusline (single statusline across all splits)
+vim.opt.laststatus = 3
+
+-- Cleaner window separators
+vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#3e3e3e", bg = "NONE" })
