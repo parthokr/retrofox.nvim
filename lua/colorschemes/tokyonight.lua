@@ -1,49 +1,39 @@
 return {
     "folke/tokyonight.nvim",
     priority = 1000,
+    lazy = false,
     config = function()
-        -- Initial transparency state (set to true to match setup below)
-        vim.g.tokyonight_transparent = false
-
-        ---@diagnostic disable-next-line: missing-fields
         require("tokyonight").setup({
-            transparent = vim.g.tokyonight_transparent,
+            style = "night",
+            transparent = false,
+            terminal_colors = true,
             styles = {
-                sidebars = true,
-                floats = true,
-                comments = { italic = false },
+                comments = { italic = true },
+                keywords = { italic = true, bold = true },
+                functions = { bold = true },
+                variables = {},
+                sidebars = "dark",
+                floats = "dark",
             },
+            on_highlights = function(hl, c)
+                -- Sharper floating windows
+                hl.FloatBorder = { fg = c.blue, bg = c.bg_float }
+                -- Better visual selection
+                hl.Visual = { bg = c.bg_visual, bold = true }
+                -- Punchier search highlights
+                hl.IncSearch = { bg = c.orange, fg = c.black, bold = true }
+                hl.Search = { bg = c.blue0, fg = c.fg, bold = true }
+                -- Better diagnostics underline
+                hl.DiagnosticUnderlineError = { undercurl = true, sp = c.error }
+                hl.DiagnosticUnderlineWarn = { undercurl = true, sp = c.warning }
+                hl.DiagnosticUnderlineInfo = { undercurl = true, sp = c.info }
+                hl.DiagnosticUnderlineHint = { undercurl = true, sp = c.hint }
+            end,
+            on_colors = function(c)
+                -- Slightly warmer background for night variant
+                c.bg_float = c.bg_dark
+            end,
         })
-
-        -- Function to apply transparency highlights
-        local function apply_transparency()
-            if vim.g.tokyonight_transparent then
-                vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
-                vim.cmd("hi NormalNC guibg=NONE ctermbg=NONE")
-                vim.cmd("hi SignColumn guibg=NONE")
-                vim.cmd("hi VertSplit guifg=#ff9e64") -- Keep split visible
-            else
-                vim.cmd("hi Normal guibg=#1f2335 ctermbg=NONE")
-                vim.cmd("hi NormalNC guibg=#1f2335 ctermbg=NONE")
-                vim.cmd("hi SignColumn guibg=#1f2335")
-                vim.cmd("hi VertSplit guifg=#ff9e64") -- Still keep it visible
-            end
-        end
-
-        -- Load the colorscheme
         vim.cmd.colorscheme("tokyonight-night")
-
-        -- Apply initial transparency state
-        -- apply_transparency()
-
-        -- Toggle transparency with <leader>tt
-        vim.keymap.set("n", "<leader>tt", function()
-            vim.g.tokyonight_transparent = not vim.g.tokyonight_transparent
-            -- apply_transparency()
-            print("Transparency: " .. (vim.g.tokyonight_transparent and "ON" or "OFF"))
-        end, { desc = "Toggle Transparency" })
-
-        -- Optional: Make window separators more visible
-        -- vim.cmd("highlight WinSeparator guifg=#ff9e64 gui=bold")
     end,
 }
