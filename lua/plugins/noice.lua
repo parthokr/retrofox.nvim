@@ -20,7 +20,7 @@ return {
         },
         messages = {
             enabled = true,
-            view = "notify",
+            view = "mini",
             view_error = "notify",
             view_warn = "notify",
             view_history = "messages",
