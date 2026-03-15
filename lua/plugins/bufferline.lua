@@ -23,12 +23,12 @@ return {
                 diagnostics_update_in_insert = false,
                 color_icons = true,
                 show_buffer_icons = true,
-                show_buffer_close_icons = true,
-                show_close_icon = true,
+                show_buffer_close_icons = false,
+                show_close_icon = false,
                 persist_buffer_sort = true,
                 separator_style = { "│", "│" },
                 enforce_regular_tabs = true,
-                always_show_bufferline = true,
+                always_show_bufferline = false,
                 show_tab_indicators = false,
                 indicator = {
                     style = "none",
@@ -52,11 +52,5 @@ return {
                 },
             },
         })
-
-        -- Draw a fake horizontal divider using winbar or statusline spacing
-        vim.cmd([[
-			hi BufferLineFill guibg=#3B4252
-			set fillchars+=vert:\│,horiz:\─,horizup:\─,horizdown:\─
-		]])
     end,
 }
