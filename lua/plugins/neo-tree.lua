@@ -26,7 +26,8 @@ return {
             "git_status",
         },
         source_selector = {
-            winbar = true,
+            winbar = false,
+            statusline = false,
             separator = "",
             content_layout = "center",
             sources = {
@@ -60,15 +61,15 @@ return {
             },
             git_status = {
                 symbols = {
-                    added     = " ",
-                    modified  = " ",
-                    deleted   = " ",
-                    renamed   = "󰑕 ",
-                    untracked = " ",
-                    ignored   = " ",
-                    unstaged  = "󰄱 ",
-                    staged    = " ",
-                    conflict  = " ",
+                    added     = "●",
+                    modified  = "◐",
+                    deleted   = "✕",
+                    renamed   = "→",
+                    untracked = "◌",
+                    ignored   = "○",
+                    unstaged  = "◆",
+                    staged    = "●",
+                    conflict  = "✱",
                 },
             },
             diagnostics = {
