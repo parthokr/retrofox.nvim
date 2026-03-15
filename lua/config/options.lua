@@ -8,20 +8,24 @@ vim.opt.showmode = false
 vim.schedule(function()
     vim.opt.clipboard = "unnamedplus"
 
-    -- Over SSH: use OSC 52 to send yanks to the local clipboard
-    -- (works through tmux → SSH → Wezterm → macOS pasteboard)
     if os.getenv("SSH_TTY") then
-        vim.g.clipboard = {
-            name = "OSC 52",
-            copy = {
-                ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-                ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
-            },
-            paste = {
-                ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-                ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
-            },
-        }
+        if os.getenv("TMUX") then
+            -- Let tmux broker clipboard reads and writes in SSH sessions.
+            vim.g.clipboard = "tmux"
+        else
+            -- Outside tmux, OSC 52 is still the best clipboard transport over SSH.
+            vim.g.clipboard = {
+                name = "OSC 52",
+                copy = {
+                    ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+                    ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+                },
+                paste = {
+                    ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+                    ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+                },
+            }
+        end
     end
 end)
 
