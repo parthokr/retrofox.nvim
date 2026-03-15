@@ -45,7 +45,7 @@ return {
                     max_count = 3,
                 },
 
-                overflow = { mode = "wrap" },
+                overflow = { mode = "none" },
                 break_line = { enabled = true, after = 60 },
 
                 virt_texts = { priority = 2048 },

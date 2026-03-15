@@ -43,6 +43,17 @@ return {
             direction = "float",
             close_on_exit = true,
             shell = vim.o.shell,
+            -- Force a well-known TERM so P10k/shell don't emit
+            -- unsupported escapes (undercurl Setulc → garbled text)
+            env = { TERM = "xterm-256color" },
+            on_open = function(term)
+                -- Arrow keys in terminal mode: pass them directly to the shell
+                local opts = { buffer = term.bufnr, noremap = true, silent = true }
+                vim.keymap.set("t", "<Left>",  "<Left>",  opts)
+                vim.keymap.set("t", "<Right>", "<Right>", opts)
+                vim.keymap.set("t", "<Up>",    "<Up>",    opts)
+                vim.keymap.set("t", "<Down>",  "<Down>",  opts)
+            end,
             float_opts = {
                 border = "rounded",
                 width = function() return math.floor(vim.o.columns * 0.85) end,

@@ -3,7 +3,6 @@ return {
     version = "*",
     dependencies = {
         "nvim-lua/plenary.nvim",
-        "nvim-tree/nvim-web-devicons",
         "MunifTanjim/nui.nvim",
     },
     cmd = "Neotree",
@@ -49,12 +48,6 @@ return {
                 expander_collapsed = "",
                 expander_expanded = "",
                 expander_highlight = "NeoTreeExpander",
-            },
-            icon = {
-                folder_closed = "",
-                folder_open = "",
-                folder_empty = "",
-                default = "",
             },
             modified = {
                 symbol = " ",
