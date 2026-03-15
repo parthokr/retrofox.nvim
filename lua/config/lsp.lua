@@ -86,7 +86,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end, "[W]orkspace [L]ist folders")
 
         -- Inlay hints (for any server that supports them)
-        if client.supports_method("textDocument/inlayHint") then
+        if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = buf })
             map("n", "<leader>th", function()
                 vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = buf }), { bufnr = buf })
