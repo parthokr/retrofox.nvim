@@ -12,11 +12,10 @@ return {
         local function lsp_clients()
             local clients = vim.lsp.get_clients({ bufnr = 0 })
             if #clients == 0 then return "" end
-            local names = {}
-            for _, c in ipairs(clients) do
-                table.insert(names, c.name)
+            if #clients == 1 then
+                return "󰒋 " .. clients[1].name
             end
-            return "  " .. table.concat(names, "  ")
+            return string.format("󰒋 %d", #clients)
         end
 
         local function cursor_position()
@@ -151,7 +150,7 @@ return {
                     },
                     {
                         "filename",
-                        path = 1,
+                        path = 0,
                         symbols = {
                             modified = " ●",
                             readonly = " 󰌾",
@@ -176,8 +175,6 @@ return {
                         lsp_clients,
                         color = { fg = "#89b4fa" },
                     },
-                    { "encoding", padding = { left = 1, right = 1 } },
-                    { "filetype", padding = { left = 0, right = 1 } },
                 },
                 lualine_y = {
                     {
@@ -209,7 +206,7 @@ return {
                 lualine_c = {
                     {
                         "filename",
-                        path = 1,
+                        path = 0,
                         symbols = { modified = " ●", readonly = " 󰌾" },
                     },
                 },
