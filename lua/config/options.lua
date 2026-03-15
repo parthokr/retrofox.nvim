@@ -7,6 +7,22 @@ vim.opt.showmode = false
 
 vim.schedule(function()
     vim.opt.clipboard = "unnamedplus"
+
+    -- Over SSH: use OSC 52 to send yanks to the local clipboard
+    -- (works through tmux → SSH → Wezterm → macOS pasteboard)
+    if os.getenv("SSH_TTY") then
+        vim.g.clipboard = {
+            name = "OSC 52",
+            copy = {
+                ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+                ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+            },
+            paste = {
+                ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+                ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+            },
+        }
+    end
 end)
 
 vim.opt.breakindent = true
