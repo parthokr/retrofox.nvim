@@ -15,10 +15,10 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open diagnostic [E]rror" })
 
 -- Disable arrow keys in normal mode
-vim.keymap.set("n", "<left>", '<cmd>echo "Use h to move!!"<CR>')
-vim.keymap.set("n", "<right>", '<cmd>echo "Use l to move!!"<CR>')
-vim.keymap.set("n", "<up>", '<cmd>echo "Use k to move!!"<CR>')
-vim.keymap.set("n", "<down>", '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set("n", "<left>", "<Nop>", { silent = true, desc = "Disable left arrow" })
+vim.keymap.set("n", "<right>", "<Nop>", { silent = true, desc = "Disable right arrow" })
+vim.keymap.set("n", "<up>", "<Nop>", { silent = true, desc = "Disable up arrow" })
+vim.keymap.set("n", "<down>", "<Nop>", { silent = true, desc = "Disable down arrow" })
 
 -- Split navigation with CTRL+<hjkl>
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
