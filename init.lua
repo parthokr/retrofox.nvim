@@ -1,4 +1,5 @@
 require("config.lazy-nvim")
+require("theme-picker")
 require("config.options")
 require("config.keymaps")
 require("config.lsp")

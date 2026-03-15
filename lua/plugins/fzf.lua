@@ -4,148 +4,320 @@ return {
     config = function()
         local fzf = require("fzf-lua")
 
-        local function get_winopts_with_title(title)
-            local winopts = require("fzf-lua.config").defaults.winopts
-            winopts = vim.tbl_deep_extend("force", {}, winopts, { title = title })
-            return winopts
+        -- ── Helper: winopts with title ──────────────────────────
+        local function winopts_titled(title)
+            return { title = title }
         end
 
-        local function map_cmd(lhs, desc, title, fn)
-            vim.keymap.set("n", lhs, function() fn(get_winopts_with_title(title)) end, { desc = desc })
+        local function map(lhs, desc, fn)
+            vim.keymap.set("n", lhs, fn, { desc = desc })
         end
 
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         -- File finders
-        map_cmd("<leader>ff", "[F]ind [F]iles", "Find Files", function(winopts)
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        map("<leader>ff", "[F]ind [F]iles", function()
             fzf.files({
+                prompt = "  ",
                 fd_opts = "--color=never --type f --hidden --follow --exclude .git --exclude .env",
-                winopts = winopts,
+                winopts = winopts_titled(" Find Files "),
             })
         end)
 
-        map_cmd("<leader>rf", "[R]esume [F]ind", "Resume Find Files", function(winopts)
+        map("<leader>rf", "[R]esume [F]ind", function()
             fzf.files({
+                prompt = "  ",
                 fd_opts = "--color=never --type f --hidden --follow --exclude .git --exclude .env",
                 resume = true,
-                winopts = winopts,
+                winopts = winopts_titled(" Resume Find "),
             })
         end)
 
-        map_cmd("<leader>fih", "[F]ind [i]n [H]idden Files", "Find Files (all)", function(winopts)
-            fzf.files({ hidden = true, no_ignore = true, winopts = winopts })
+        map("<leader>fih", "[F]ind [i]n [H]idden Files", function()
+            fzf.files({
+                prompt = "  ",
+                hidden = true,
+                no_ignore = true,
+                winopts = winopts_titled(" Find Files (all) "),
+            })
         end)
 
-        map_cmd("<leader>fn", "[F]ind in [N]eovim Config", "Find Neovim Config Files", function(winopts)
+        map("<leader>fn", "[F]ind in [N]eovim Config", function()
             fzf.files({
+                prompt = "  ",
                 hidden = true,
                 cwd = vim.fn.stdpath("config"),
                 fd_opts = "--color=never --type f --hidden --follow --exclude .git",
-                winopts = winopts,
+                winopts = winopts_titled(" Neovim Config "),
             })
         end)
 
-        -- Grep & Buffers
-        map_cmd("<leader>fg", "[F]ind [G]rep", "Live Grep", function(winopts)
-            fzf.live_grep({ resume = true, winopts = winopts })
+        map("<leader>f.", "[F]ind Recent Files", function()
+            fzf.oldfiles({
+                prompt = "  ",
+                winopts = winopts_titled(" Recent Files "),
+            })
         end)
 
-        map_cmd("<leader>/", "Find Fuzzily in Current Buffer", "Grep Current Buffer", function(winopts)
-            fzf.grep_curbuf({ resume = true, winopts = winopts })
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        -- Grep
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        map("<leader>fg", "[F]ind [G]rep", function()
+            fzf.live_grep({
+                prompt = " 󰈬 ",
+                resume = true,
+                winopts = winopts_titled(" Live Grep "),
+            })
         end)
 
-        map_cmd("<leader>fb", "[F]ind [B]uffers", "Buffers", function(winopts)
-            fzf.buffers({ resume = true, winopts = winopts })
+        map("<leader>fw", "[F]ind [W]ord under cursor", function()
+            fzf.grep_cword({
+                prompt = " 󰈬 ",
+                winopts = winopts_titled(" Grep: <cword> "),
+            })
         end)
 
-        map_cmd("<leader>fh", "[F]ind [H]elp", "Help Tags", function(winopts)
-            fzf.help_tags({ resume = true, winopts = winopts })
+        map("<leader>/", "Grep Current Buffer", function()
+            fzf.grep_curbuf({
+                prompt = "  ",
+                resume = true,
+                winopts = winopts_titled(" Grep Buffer "),
+            })
         end)
 
-        map_cmd("<leader>fk", "[F]ind [K]eymaps", "Keymaps", function(winopts)
-            fzf.keymaps({ resume = true, winopts = winopts })
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        -- Buffers, Help, Keymaps, Registers
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        map("<leader>fb", "[F]ind [B]uffers", function()
+            fzf.buffers({
+                prompt = "  ",
+                resume = true,
+                sort_lastused = true,
+                winopts = winopts_titled(" Buffers "),
+            })
         end)
 
-        map_cmd("<leader>fr", "[F]ind [R]egisters", "Registers", function(winopts)
-            fzf.registers({ resume = true, winopts = winopts })
+        map("<leader>fh", "[F]ind [H]elp", function()
+            fzf.help_tags({
+                prompt = " 󰋖 ",
+                resume = true,
+                winopts = winopts_titled(" Help Tags "),
+            })
         end)
 
-        map_cmd("<leader>ft", "[F]ind [T]hemes", "Color Schemes", function(winopts)
-            fzf.colorschemes({ resume = true, winopts = winopts })
+        map("<leader>fk", "[F]ind [K]eymaps", function()
+            fzf.keymaps({
+                prompt = "  ",
+                resume = true,
+                winopts = winopts_titled(" Keymaps "),
+            })
         end)
 
+        map("<leader>fr", "[F]ind [R]egisters", function()
+            fzf.registers({
+                prompt = "  ",
+                resume = true,
+                winopts = winopts_titled(" Registers "),
+            })
+        end)
+
+        vim.keymap.set("n", "<leader>ft", function()
+            require("theme-picker").open()
+        end, { desc = "[F]ind [T]hemes" })
+
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         -- LSP
-        map_cmd("<leader>dd", "[D]ocument [D]iagnostics", "Document Diagnostics", function(winopts)
-            fzf.lsp_document_diagnostics({ resume = true, winopts = winopts })
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        local lsp_prompt = "  "
+
+        map("<leader>dd", "[D]ocument [D]iagnostics", function()
+            fzf.lsp_document_diagnostics({
+                prompt = lsp_prompt,
+                resume = true,
+                winopts = winopts_titled(" Document Diagnostics "),
+            })
         end)
 
-        map_cmd("<leader>wd", "[W]orkspace [D]iagnostics", "Workspace Diagnostics", function(winopts)
-            fzf.lsp_workspace_diagnostics({ resume = true, winopts = winopts })
+        map("<leader>wd", "[W]orkspace [D]iagnostics", function()
+            fzf.lsp_workspace_diagnostics({
+                prompt = lsp_prompt,
+                resume = true,
+                winopts = winopts_titled(" Workspace Diagnostics "),
+            })
         end)
 
-        map_cmd("<leader>ds", "[D]ocument [S]ymbols", "Document Symbols", function(winopts)
-            fzf.lsp_document_symbols({ winopts = winopts })
+        map("<leader>ds", "[D]ocument [S]ymbols", function()
+            fzf.lsp_document_symbols({
+                prompt = lsp_prompt,
+                winopts = winopts_titled(" Document Symbols "),
+            })
         end)
 
-        map_cmd("<leader>ws", "[W]orkspace [S]ymbols", "Workspace Symbols", function(winopts)
-            fzf.lsp_workspace_symbols({ resume = true, winopts = winopts })
+        map("<leader>ws", "[W]orkspace [S]ymbols", function()
+            fzf.lsp_workspace_symbols({
+                prompt = lsp_prompt,
+                resume = true,
+                winopts = winopts_titled(" Workspace Symbols "),
+            })
         end)
 
-        map_cmd("gd", "Go to Definition", "LSP Definitions", function(winopts)
-            fzf.lsp_definitions({ resume = true, winopts = winopts })
+        map("gd", "Go to Definition", function()
+            fzf.lsp_definitions({
+                prompt = lsp_prompt,
+                jump1 = true,
+                winopts = winopts_titled(" LSP Definitions "),
+            })
         end)
 
-        map_cmd("gD", "Go to Declaration", "LSP Declarations", function(winopts)
-            fzf.lsp_declarations({ resume = true, winopts = winopts })
+        map("gD", "Go to Declaration", function()
+            fzf.lsp_declarations({
+                prompt = lsp_prompt,
+                jump1 = true,
+                winopts = winopts_titled(" LSP Declarations "),
+            })
         end)
 
-        map_cmd("gi", "Go to Implementation", "LSP Implementations", function(winopts)
-            fzf.lsp_implementations({ resume = true, winopts = winopts })
+        map("gi", "Go to Implementation", function()
+            fzf.lsp_implementations({
+                prompt = lsp_prompt,
+                jump1 = true,
+                winopts = winopts_titled(" LSP Implementations "),
+            })
         end)
 
-        map_cmd("gr", "Find References", "LSP References", function(winopts)
-            fzf.lsp_references({ resume = true, winopts = winopts })
+        map("gr", "Find References", function()
+            fzf.lsp_references({
+                prompt = lsp_prompt,
+                resume = true,
+                winopts = winopts_titled(" LSP References "),
+            })
         end)
 
-        map_cmd("ga", "Code Actions", "LSP Code Actions", function(winopts)
-            fzf.lsp_code_actions({ resume = true, winopts = winopts, silent = true })
+        map("ga", "Code Actions", function()
+            fzf.lsp_code_actions({
+                prompt = lsp_prompt,
+                winopts = winopts_titled(" Code Actions "),
+            })
         end)
 
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         -- Git
-        map_cmd("fgc", "[G]it [C]ommits", "Git Commits", function(winopts)
-            fzf.git_commits({ resume = true, winopts = winopts })
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        local git_prompt = "  "
+
+        map("fgc", "[G]it [C]ommits", function()
+            fzf.git_commits({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Commits ") })
         end)
 
-        map_cmd("fgC", "[G]it Buffer [C]ommits", "Git Buffer Commits", function(winopts)
-            fzf.git_bcommits({ resume = true, winopts = winopts })
+        map("fgC", "[G]it Buffer [C]ommits", function()
+            fzf.git_bcommits({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Buffer Commits ") })
         end)
 
-        map_cmd("fgs", "[G]it [S]tatus", "Git Status", function(winopts)
-            fzf.git_status({ resume = true, winopts = winopts })
+        map("fgs", "[G]it [S]tatus", function()
+            fzf.git_status({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Status ") })
         end)
 
-        map_cmd("fgS", "[G]it [S]tash", "Git Stash", function(winopts)
-            fzf.git_stash({ resume = true, winopts = winopts })
+        map("fgS", "[G]it [S]tash", function()
+            fzf.git_stash({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Stash ") })
         end)
 
-        map_cmd("fgb", "[G]it [B]lame", "Git Blame", function(winopts)
-            fzf.git_blame({ resume = true, winopts = winopts })
+        map("fgb", "[G]it [B]lame", function()
+            fzf.git_blame({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Blame ") })
         end)
     end,
 
+    -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    -- Global defaults
+    -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
     opts = {
+        -- ── Window ──────────────────────────────────────────
         winopts = {
-            height = 0.85,
-            width = 0.85,
-            row = 0.5,
-            col = 0.5,
+            height  = 0.85,
+            width   = 0.85,
+            row     = 0.5,
+            col     = 0.5,
+            border  = "rounded",
             backdrop = 60,
-            treesitter = true,
+            preview = {
+                layout   = "flex",       -- auto switch horizontal↔vertical
+                flip_columns = 130,      -- switch to vertical when < 130 cols
+                scrollbar = "border",
+                delay    = 60,           -- slight delay to avoid flicker while scrolling
+                title    = true,
+            },
         },
+
+        -- ── FZF binary options ──────────────────────────────
         fzf_opts = {
-            ["--layout"] = "reverse",
-            ["--info"] = "inline-right",
-            ["--cycle"] = true,
+            ["--layout"]         = "reverse",
+            ["--info"]           = "inline-right",
+            ["--cycle"]          = true,
             ["--highlight-line"] = true,
+            ["--marker"]         = "▏",
+            ["--pointer"]        = "▌",
+            ["--header-first"]   = true,
         },
+
+        -- ── Key bindings inside FZF ─────────────────────────
+        keymap = {
+            fzf = {
+                ["ctrl-q"]     = "select-all+accept",   -- send all/selected to quickfix
+                ["ctrl-u"]     = "half-page-up",
+                ["ctrl-d"]     = "half-page-down",
+                ["ctrl-a"]     = "toggle-all",
+            },
+            builtin = {
+                ["<C-s>"]  = "split",
+                ["<C-v>"]  = "vsplit",
+                ["<C-t>"]  = "tabedit",
+                ["<C-f>"]  = "preview-page-down",
+                ["<C-b>"]  = "preview-page-up",
+            },
+        },
+
+        -- ── File icon padding ───────────────────────────────
         file_icon_padding = " ",
+
+        -- ── Files ───────────────────────────────────────────
+        files = {
+            formatter   = "path.filename_first",
+            git_icons   = true,
+            header      = "Actions: ctrl-s split │ ctrl-v vsplit │ ctrl-t tab",
+        },
+
+        -- ── Grep ────────────────────────────────────────────
+        grep = {
+            formatter   = "path.filename_first",
+            header      = "Actions: ctrl-q quickfix │ ctrl-s split │ ctrl-v vsplit",
+            rg_opts     = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
+            multiprocess = true,
+        },
+
+        -- ── Buffers ─────────────────────────────────────────
+        buffers = {
+            formatter    = "path.filename_first",
+            sort_lastused = true,
+            header       = "Actions: ctrl-x close │ ctrl-s split │ ctrl-v vsplit",
+            actions      = {
+                ["ctrl-x"] = { fn = function(...) return require("fzf-lua.actions").buf_del(...) end, reload = true },
+            },
+        },
+
+        -- ── Oldfiles ────────────────────────────────────────
+        oldfiles = {
+            formatter = "path.filename_first",
+        },
+
+        -- ── LSP ─────────────────────────────────────────────
+        lsp = {
+            jump1 = true,
+            formatter = "path.filename_first",
+        },
     },
 }

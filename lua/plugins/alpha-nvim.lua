@@ -136,8 +136,6 @@ return {
             "  ██║      ██║  ██║ ██║  ██║    ██║    ██║  ██║ ╚██████╔╝ ",
             "  ╚═╝      ╚═╝  ╚═╝ ╚═╝  ╚═╝    ╚═╝    ╚═╝  ╚═╝  ╚═════╝  ",
             "",
-            "  ─────────────── ✦  V I M   I T  ✦ ───────────────",
-            "",
         }
 
         -- HSL → RGB conversion for smooth color cycling
@@ -206,12 +204,45 @@ return {
         dashboard.section.header.opts.hl = header_hl
 
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        -- Context sections (greeting, date, separator)
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        local greeting_section = {
+            type = "text",
+            val = function()
+                local hour = tonumber(os.date("%H"))
+                local icon, msg
+                if hour < 5 then      icon, msg = "󰖔", "Good night"
+                elseif hour < 12 then icon, msg = "󰖙", "Good morning"
+                elseif hour < 17 then icon, msg = "", "Good afternoon"
+                else                  icon, msg = "󰖔", "Good evening"
+                end
+                return icon .. "  " .. msg
+            end,
+            opts = { hl = "AlphaGreeting", position = "center" },
+        }
+
+        local date_section = {
+            type = "text",
+            val = os.date("%A, %d %B %Y"),
+            opts = { hl = "AlphaDate", position = "center" },
+        }
+
+        local function make_separator()
+            return {
+                type = "text",
+                val = "────────────────────────────────────────",
+                opts = { hl = "AlphaSeparator", position = "center" },
+            }
+        end
+
+        -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         -- Quick Actions
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         local function action(shortcut, icon, label, command)
             local button = dashboard.button(shortcut, string.format("%s  %s", icon, label), command)
-            button.opts.width = 52
+            button.opts.width = 56
             button.opts.hl = "AlphaButtons"
             button.opts.hl_shortcut = "AlphaShortcut"
             button.opts.cursor = 0
@@ -225,11 +256,11 @@ return {
             action("g", "󰈬", "Live grep", "<cmd>FzfLua live_grep<CR>"),
             action("n", "󰈔", "New file", "<cmd>ene<CR>"),
             action("c", "󰒓", "Config", "<cmd>FzfLua files cwd=" .. vim.fn.stdpath("config") .. "<CR>"),
-            action("t", "󰏘", "Themes", "<cmd>FzfLua colorschemes<CR>"),
+            action("t", "󰏘", "Themes", "<cmd>lua require('theme-picker').open()<CR>"),
             action("l", "󰒲", "Lazy", "<cmd>Lazy<CR>"),
             action("q", "\u{f011}", "Quit", "<cmd>qa<CR>"),
         }
-        dashboard.section.buttons.opts.spacing = 1
+        dashboard.section.buttons.opts.spacing = 0
 
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         -- Recent Files
@@ -244,7 +275,7 @@ return {
 
                 table.insert(items, {
                     type = "text",
-                    val = "  Recent Files",
+                    val = "  Recents",
                     opts = { hl = "AlphaRecentHeader", position = "center" },
                 })
                 table.insert(items, { type = "padding", val = 1 })
@@ -256,12 +287,10 @@ return {
                     if vim.fn.filereadable(path) == 1 then
                         count = count + 1
 
-                        -- Show as: filename  ~/dir/parent
                         local filename = vim.fn.fnamemodify(path, ":t")
                         local dir = vim.fn.fnamemodify(path, ":~:h")
 
-                        -- Truncate dir if combo is too long
-                        local avail = max_display - #filename - 4 -- 4 = "  " separator + icon + space
+                        local avail = max_display - #filename - 4
                         if #dir > avail and avail > 4 then
                             dir = "…" .. dir:sub(-(avail - 1))
                         elseif avail <= 4 then
@@ -302,12 +331,11 @@ return {
             local stats = require("lazy").stats()
             local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
             local lines = {
-                string.format("  %d/%d plugins loaded in %.2fms", stats.loaded, stats.count, ms),
-                "  " .. os.date("%A, %d %B %Y"),
+                string.format("⚡ %d/%d plugins · %.0fms", stats.loaded, stats.count, ms),
             }
 
             local quote = quote_state.is_loading and loading_quote or quote_state.text
-            local max_width = math.max(30, math.min(vim.o.columns - 12, 80))
+            local max_width = math.max(30, math.min(vim.o.columns - 12, 70))
             for _, wrapped in ipairs(wrap_text(quote, max_width)) do
                 table.insert(lines, "  " .. wrapped)
             end
@@ -321,11 +349,20 @@ return {
         -- Layout
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+        local top_pad = math.max(1, math.floor((vim.o.lines - 40) / 3))
+
         dashboard.config.layout = {
-            { type = "padding", val = 4 },
+            { type = "padding", val = top_pad },
             dashboard.section.header,
+            { type = "padding", val = 1 },
+            greeting_section,
+            date_section,
             { type = "padding", val = 2 },
+            make_separator(),
+            { type = "padding", val = 1 },
             dashboard.section.buttons,
+            { type = "padding", val = 1 },
+            make_separator(),
             { type = "padding", val = 1 },
             recent_files_section,
             { type = "padding", val = 2 },
@@ -333,7 +370,7 @@ return {
         }
 
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        -- Static highlights (buttons, footer, shortcuts)
+        -- Adaptive highlights (colorscheme-reactive)
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         local function set_static_highlights()
@@ -341,16 +378,40 @@ return {
                 local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
                 return ok and hl.fg and string.format("#%06x", hl.fg) or nil
             end
+            local function get_bg(name)
+                local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
+                return ok and hl.bg and string.format("#%06x", hl.bg) or nil
+            end
 
-            local green = get_fg("String") or "#9ece6a"
-            local orange = get_fg("Constant") or "#ff9e64"
-            local dim = get_fg("Comment") or "#a9b1d6"
+            local function hex_to_rgb(hex)
+                hex = hex:gsub("#", "")
+                return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
+            end
+            local function blend(c1, c2, t)
+                local r1, g1, b1 = hex_to_rgb(c1)
+                local r2, g2, b2 = hex_to_rgb(c2)
+                return string.format("#%02x%02x%02x",
+                    math.floor(r1 + (r2 - r1) * t),
+                    math.floor(g1 + (g2 - g1) * t),
+                    math.floor(b1 + (b2 - b1) * t))
+            end
 
-            vim.api.nvim_set_hl(0, "AlphaButtons", { fg = green })
-            vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = orange, bold = true })
-            vim.api.nvim_set_hl(0, "AlphaFooter", { fg = dim, italic = true })
+            local green   = get_fg("String")   or "#9ece6a"
+            local orange  = get_fg("Constant")  or "#ff9e64"
+            local dim     = get_fg("Comment")   or "#a9b1d6"
+            local keyword = get_fg("Keyword")   or "#c099ff"
+            local bg      = get_bg("Normal")    or "#1a1b26"
+
+            local sep_fg = blend(bg, dim, 0.45)
+
+            vim.api.nvim_set_hl(0, "AlphaButtons",      { fg = green })
+            vim.api.nvim_set_hl(0, "AlphaShortcut",     { fg = orange, bold = true })
+            vim.api.nvim_set_hl(0, "AlphaFooter",       { fg = dim, italic = true })
             vim.api.nvim_set_hl(0, "AlphaRecentHeader", { fg = orange, bold = true })
-            vim.api.nvim_set_hl(0, "AlphaRecentFile", { fg = dim })
+            vim.api.nvim_set_hl(0, "AlphaRecentFile",   { fg = dim })
+            vim.api.nvim_set_hl(0, "AlphaGreeting",     { fg = keyword, bold = true })
+            vim.api.nvim_set_hl(0, "AlphaDate",         { fg = dim, italic = true })
+            vim.api.nvim_set_hl(0, "AlphaSeparator",    { fg = sep_fg })
         end
 
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
