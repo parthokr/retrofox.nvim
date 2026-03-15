@@ -22,26 +22,26 @@ return {
 
             options = {
                 show_source = { enabled = true, if_many = true },
-                show_code = true,
+                show_code = false,
                 set_arrow_to_diag_color = true,
-                throttle = 20,
+                throttle = 40,
                 softwrap = 40,
 
                 add_messages = {
-                    messages = true,
+                    messages = false,
                     display_count = false,
                     show_multiple_glyphs = true,
                 },
 
                 multilines = {
-                    enabled = true,
-                    always_show = true,
+                    enabled = false,
+                    always_show = false,
                 },
 
-                show_all_diags_on_cursorline = true,
+                show_all_diags_on_cursorline = false,
 
                 show_related = {
-                    enabled = true,
+                    enabled = false,
                     max_count = 3,
                 },
 
