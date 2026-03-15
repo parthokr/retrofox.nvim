@@ -9,23 +9,40 @@ vim.schedule(function()
     vim.opt.clipboard = "unnamedplus"
 
     if os.getenv("SSH_TTY") then
-        if os.getenv("TMUX") then
-            -- Let tmux broker clipboard reads and writes in SSH sessions.
-            vim.g.clipboard = "tmux"
-        else
-            -- Outside tmux, OSC 52 is still the best clipboard transport over SSH.
-            vim.g.clipboard = {
-                name = "OSC 52",
-                copy = {
-                    ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-                    ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
-                },
-                paste = {
-                    ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-                    ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
-                },
-            }
+        -- Over SSH, writing to the local clipboard is reliable via OSC 52.
+        -- Reading the local clipboard back is often blocked by the terminal,
+        -- so keep a local cache instead of issuing OSC 52 paste requests.
+        local osc52 = require("vim.ui.clipboard.osc52")
+        local clipboard_cache = {
+            ["+"] = { {}, "v" },
+            ["*"] = { {}, "v" },
+        }
+
+        local function copy(reg)
+            local osc52_copy = osc52.copy(reg)
+            return function(lines, regtype)
+                clipboard_cache[reg] = { vim.deepcopy(lines), regtype }
+                osc52_copy(lines, regtype)
+            end
         end
+
+        local function paste(reg)
+            return function()
+                return clipboard_cache[reg]
+            end
+        end
+
+        vim.g.clipboard = {
+            name = "OSC 52 copy-only",
+            copy = {
+                ["+"] = copy("+"),
+                ["*"] = copy("*"),
+            },
+            paste = {
+                ["+"] = paste("+"),
+                ["*"] = paste("*"),
+            },
+        }
     end
 end)
 
