@@ -25,6 +25,7 @@ return {
             cpp = { "clang-format" },
             go = { "gofmt" },
             python = { "ruff" },
+            java = { "google-java-format" },
         },
     },
 }
