@@ -1,6 +1,26 @@
 return {
     "nvim-lualine/lualine.nvim",
     config = function()
+        -- ── Helpers ───────────────────────────────────────────────
+
+        --- Decode percent-encoded chars in a URI (e.g. %3C → <)
+        local function uri_decode(str)
+            return (str:gsub("%%(%x%x)", function(hex)
+                return string.char(tonumber(hex, 16))
+            end))
+        end
+
+        --- For jdt:// buffers, extract a clean class name from the URI.
+        --- Returns nil for normal buffers so the default can be used.
+        local function jdt_classname(bufname)
+            if not bufname or not bufname:match("^jdt://") then return nil end
+            -- jdt URI after decoding: …/<package>(ClassName.class?=…
+            -- The ( separates the package path from the class file name.
+            local decoded = uri_decode(bufname)
+            local classfile = decoded:match("%(([^%(%)]+%.class)")
+            return classfile or decoded:match("([^/]+)$") or bufname
+        end
+
         -- ── Custom Components ──────────────────────────────────────
 
         local function macro_recording()
@@ -33,12 +53,19 @@ return {
 
         -- ── Custom minimal theme from scratch ──────────────────────
         -- Draws colors from your active colorscheme so it always blends
+
+        local function hl(name)
+            local ok, h = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
+            if ok then return h end
+            return {}
+        end
+
+        local function hl_fg(name, fallback)
+            local h = hl(name)
+            return h.fg and string.format("#%06x", h.fg) or fallback
+        end
+
         local function get_custom_theme()
-            local function hl(name)
-                local ok, h = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
-                if ok then return h end
-                return {}
-            end
 
             local normal = hl("Normal")
             local comment = hl("Comment")
@@ -112,108 +139,134 @@ return {
             ["SELECT"]   = "󰒉 SEL",
         }
 
-        require("lualine").setup({
-            options = {
-                icons_enabled = true,
-                theme = get_custom_theme(),
-                globalstatus = true,
-                component_separators = "",
-                section_separators = { left = "", right = "" },
-                disabled_filetypes = {
-                    statusline = { "alpha", "neo-tree", "toggleterm" },
-                },
-            },
-            sections = {
-                lualine_a = {
-                    {
-                        "mode",
-                        fmt = function(s) return mode_map[s] or s end,
+        -- ── Shared lualine config (theme-aware) ────────────────────
+        -- We extract the config into a function so the ColorScheme
+        -- autocmd can re-derive colors and refresh lualine.
+
+        local function build_lualine_opts()
+            return {
+                options = {
+                    icons_enabled = true,
+                    theme = get_custom_theme(),
+                    globalstatus = true,
+                    component_separators = "",
+                    section_separators = { left = "", right = "" },
+                    disabled_filetypes = {
+                        statusline = { "alpha", "neo-tree", "toggleterm" },
                     },
                 },
-                lualine_b = {
-                    {
-                        "branch",
-                        icon = "",
-                        color = { gui = "bold" },
-                    },
-                    {
-                        "diff",
-                        symbols = { added = " ", modified = " ", removed = " " },
-                        padding = { left = 1, right = 1 },
-                    },
-                },
-                lualine_c = {
-                    {
-                        "filetype",
-                        icon_only = true,
-                        padding = { left = 1, right = 0 },
-                    },
-                    {
-                        "filename",
-                        path = 0,
-                        symbols = {
-                            modified = " ●",
-                            readonly = " 󰌾",
-                            unnamed = "[No Name]",
-                            newfile = " [New]",
+                sections = {
+                    lualine_a = {
+                        {
+                            "mode",
+                            fmt = function(s) return mode_map[s] or s end,
                         },
                     },
-                    {
-                        "diagnostics",
-                        sources = { "nvim_diagnostic" },
-                        symbols = { error = " ", warn = " ", info = " ", hint = "󰌵 " },
-                        padding = { left = 2 },
+                    lualine_b = {
+                        {
+                            "branch",
+                            icon = "",
+                            color = { gui = "bold" },
+                        },
+                        {
+                            "diff",
+                            symbols = { added = " ", modified = " ", removed = " " },
+                            padding = { left = 1, right = 1 },
+                        },
                     },
-                    {
-                        macro_recording,
-                        color = { fg = "#f38ba8", gui = "bold" },
+                    lualine_c = {
+                        {
+                            "filetype",
+                            icon_only = true,
+                            padding = { left = 1, right = 0 },
+                        },
+                        {
+                            "filename",
+                            path = 0,
+                            fmt = function(name, ctx)
+                                local clean = jdt_classname(vim.api.nvim_buf_get_name(ctx.bufnr or 0))
+                                return clean or name
+                            end,
+                            symbols = {
+                                modified = " ●",
+                                readonly = " 󰌾",
+                                unnamed = "[No Name]",
+                                newfile = " [New]",
+                            },
+                        },
+                        {
+                            "diagnostics",
+                            sources = { "nvim_diagnostic" },
+                            symbols = { error = " ", warn = " ", info = " ", hint = "󰌵 " },
+                            padding = { left = 2 },
+                        },
+                        {
+                            macro_recording,
+                            color = { fg = hl_fg("DiagnosticError", "#f38ba8"), gui = "bold" },
+                        },
+                    },
+                    lualine_x = {
+                        word_count,
+                        {
+                            lsp_clients,
+                            color = { fg = hl_fg("Function", "#89b4fa") },
+                        },
+                    },
+                    lualine_y = {
+                        {
+                            "searchcount",
+                            icon = "",
+                        },
+                        {
+                            "progress",
+                            fmt = function()
+                                local cur = vim.fn.line(".")
+                                local total = vim.fn.line("$")
+                                if cur == 1 then return "Top" end
+                                if cur == total then return "Bot" end
+                                return math.floor(cur / total * 100) .. "%%"
+                            end,
+                        },
+                    },
+                    lualine_z = {
+                        {
+                            cursor_position,
+                            icon = "",
+                            padding = { left = 1, right = 1 },
+                        },
                     },
                 },
-                lualine_x = {
-                    word_count,
-                    {
-                        lsp_clients,
-                        color = { fg = "#89b4fa" },
+                inactive_sections = {
+                    lualine_a = {},
+                    lualine_b = {},
+                    lualine_c = {
+                        {
+                            "filename",
+                            path = 0,
+                            symbols = { modified = " ●", readonly = " 󰌾" },
+                        },
                     },
+                    lualine_x = { "location" },
+                    lualine_y = {},
+                    lualine_z = {},
                 },
-                lualine_y = {
-                    {
-                        "searchcount",
-                        icon = "",
-                    },
-                    {
-                        "progress",
-                        fmt = function()
-                            local cur = vim.fn.line(".")
-                            local total = vim.fn.line("$")
-                            if cur == 1 then return "Top" end
-                            if cur == total then return "Bot" end
-                            return math.floor(cur / total * 100) .. "%%"
-                        end,
-                    },
-                },
-                lualine_z = {
-                    {
-                        cursor_position,
-                        icon = "",
-                        padding = { left = 1, right = 1 },
-                    },
-                },
-            },
-            inactive_sections = {
-                lualine_a = {},
-                lualine_b = {},
-                lualine_c = {
-                    {
-                        "filename",
-                        path = 0,
-                        symbols = { modified = " ●", readonly = " 󰌾" },
-                    },
-                },
-                lualine_x = { "location" },
-                lualine_y = {},
-                lualine_z = {},
-            },
+            }
+        end
+
+        -- Initial setup
+        require("lualine").setup(build_lualine_opts())
+
+        -- ── Re-sync lualine whenever the colorscheme changes ─────
+        -- This makes the statusline adapt instantly when themes are
+        -- switched via :ThemePicker, :colorscheme, or any other means.
+        vim.api.nvim_create_autocmd("ColorScheme", {
+            group = vim.api.nvim_create_augroup("LualineThemeSync", { clear = true }),
+            callback = function()
+                -- Defer briefly so highlight groups are fully applied
+                vim.defer_fn(function()
+                    require("lualine").setup(build_lualine_opts())
+                end, 0)
+            end,
         })
     end,
 }

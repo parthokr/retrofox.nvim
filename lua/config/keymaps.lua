@@ -62,11 +62,14 @@ vim.keymap.set("n", "<leader>bd", "<cmd>Bdelete<CR>", { desc = "Close buffer (ke
 -- Quick save
 vim.keymap.set({ "n", "i" }, "<C-s>", "<cmd>w<CR>", { desc = "Save file" })
 
--- Move lines up/down
-vim.keymap.set("n", "<A-j>", "<cmd>m .+1<CR>==", { desc = "Move line down" })
-vim.keymap.set("n", "<A-k>", "<cmd>m .-2<CR>==", { desc = "Move line up" })
-vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down", silent = true })
-vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up", silent = true })
+-- Copy full file path
+vim.keymap.set("n", "<leader>fp", function()
+    local path = vim.fn.expand("%:p")
+    vim.fn.setreg("+", path)
+    vim.notify(path, vim.log.levels.INFO, { title = "File Path" })
+end, { desc = "Copy file path" })
+
+
 
 -- Better indent in visual mode (stay in visual)
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left" })
