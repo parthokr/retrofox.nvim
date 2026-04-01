@@ -17,8 +17,20 @@ local ROOT_MARKERS = {
     ".git",
 }
 
+-- Java-specific markers for project detection (excludes .git — too broad)
+local JAVA_PROJECT_MARKERS = {
+    "pom.xml",
+    "build.gradle",
+    "build.gradle.kts",
+    "settings.gradle",
+    "settings.gradle.kts",
+    "mvnw",
+    "gradlew",
+    ".project",
+}
+
 local AUGROUP = vim.api.nvim_create_augroup("RetrofoxJavaJdtls", { clear = true })
-local is_java_project = vim.fs.root(vim.fn.getcwd(), ROOT_MARKERS) ~= nil
+local is_java_project = vim.fs.root(vim.fn.getcwd(), JAVA_PROJECT_MARKERS) ~= nil
 
 local function get_jdtls_path()
     local jdtls_path = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
@@ -203,6 +215,26 @@ return {
                 and vim.bo[buf].filetype == "java" then
                 setup_jdtls(buf)
             end
+        end
+
+        -- In a Java project, proactively start the JDTLS server so it is
+        -- already warm when the first .java buffer is opened.
+        if is_java_project then
+            vim.defer_fn(function()
+                if #vim.lsp.get_clients({ name = "jdtls" }) > 0 then return end
+                local root = vim.fs.root(vim.fn.getcwd(), JAVA_PROJECT_MARKERS)
+                if not root then return end
+                local found = vim.fs.find(function(name)
+                    return name:match("%.java$")
+                end, { path = root, limit = 1, type = "file" })
+                if #found == 0 then return end
+                local buf = vim.fn.bufadd(found[1])
+                vim.fn.bufload(buf)
+                vim.bo[buf].buflisted = false
+                if vim.bo[buf].filetype ~= "java" then
+                    vim.bo[buf].filetype = "java"
+                end
+            end, 100)
         end
     end,
 }
