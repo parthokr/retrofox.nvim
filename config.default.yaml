@@ -1,0 +1,30 @@
+# retrofox.nvim config
+#
+# :RetrofoxEdit   — open this file
+# :RetrofoxApply  — re-apply after changes
+# :ThemePicker    — switch colorschemes
+#
+# Requires: Neovim >= 0.12.0
+
+modules:
+  go: false
+  cpp: false
+  python: false
+  typescript: false
+  rust: false
+  java: false
+  docker: false
+  json: false
+  markdown: false
+  copilot: false
+  competitive_programming: false
+
+editor:
+  tab_width: 4
+  relative_numbers: true
+  format_on_save: true
+
+# Managed by :ThemePicker — rarely edited manually
+appearance:
+  colorscheme: "tokyonight-night"
+  colorscheme_label: "Night"

@@ -1,0 +1,7 @@
+require("retrofox.startup")
+require("core.lazy-nvim")
+require("theme-picker")
+require("core.options")
+require("core.keymaps")
+require("core.lsp")
+require("core.user_commands")

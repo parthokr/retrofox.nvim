@@ -1,0 +1,12 @@
+node_modules/*
+# package.json
+package-lock.json
+lazy.json
+lazy-lock.json
+dist/*
+.vscode/*
+*.log
+*.env
+*.DS_Store
+*.swp
+.luarc.json
