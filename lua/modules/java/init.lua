@@ -5,38 +5,80 @@ if not require("retrofox.module").enabled("java") then return {} end
 
 local os_util = require("retrofox.os")
 
---- Dynamically find the equinox launcher JAR so Mason updates don't break the config
-local function get_jdtls_launcher()
-    local jdtls_path = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
+local ROOT_MARKERS = {
+    "pom.xml",
+    "build.gradle",
+    "build.gradle.kts",
+    "settings.gradle",
+    "settings.gradle.kts",
+    "mvnw",
+    "gradlew",
+    ".project",
+    ".git",
+}
 
-    -- Check if JDTLS is installed via Mason
+local AUGROUP = vim.api.nvim_create_augroup("RetrofoxJavaJdtls", { clear = true })
+local is_java_project = vim.fs.root(vim.fn.getcwd(), ROOT_MARKERS) ~= nil
+
+local function get_jdtls_path()
+    local jdtls_path = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
     if vim.fn.isdirectory(jdtls_path) ~= 1 then
         vim.notify(
-            "JDTLS not installed. Run :MasonInstall jdtls",
+            "JDTLS is not installed yet. Open :Mason and install jdtls.",
             vim.log.levels.WARN,
             { title = "retrofox/java" }
         )
         return nil
     end
+    return jdtls_path
+end
 
+local function get_jdtls_launcher(jdtls_path)
     local launcher_glob = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
     if launcher_glob == "" then
-        vim.notify("JDTLS equinox launcher JAR not found!", vim.log.levels.ERROR)
+        vim.notify("JDTLS equinox launcher JAR not found.", vim.log.levels.ERROR, { title = "retrofox/java" })
         return nil
     end
     return vim.split(launcher_glob, "\n")[1]
 end
 
-local function setup_jdtls()
-    local jdtls = require("jdtls")
-    local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-    local jdtls_path = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
-    local workspace_dir = vim.fn.stdpath("data") .. "/jdtls-workspace/" .. project_name
+local function resolve_root_dir(bufnr)
+    local root_dir = vim.fs.root(bufnr, ROOT_MARKERS)
+    if root_dir then return root_dir end
 
-    local launcher_jar = get_jdtls_launcher()
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    if bufname ~= "" then
+        root_dir = vim.fs.root(bufname, ROOT_MARKERS)
+        if root_dir then return root_dir end
+    end
+
+    vim.notify(
+        "No Java project root found. Expected one of: " .. table.concat(ROOT_MARKERS, ", "),
+        vim.log.levels.WARN,
+        { title = "retrofox/java" }
+    )
+    return nil
+end
+
+local function workspace_dir(root_dir)
+    local project_name = vim.fs.basename(root_dir)
+    local project_hash = vim.fn.sha256(root_dir):sub(1, 12)
+    return vim.fs.joinpath(vim.fn.stdpath("data"), "jdtls-workspace", project_name .. "-" .. project_hash)
+end
+
+local function setup_jdtls(bufnr)
+    if vim.bo[bufnr].filetype ~= "java" then return end
+
+    local jdtls = require("jdtls")
+    local root_dir = resolve_root_dir(bufnr)
+    if not root_dir then return end
+
+    local jdtls_path = get_jdtls_path()
+    if not jdtls_path then return end
+
+    local launcher_jar = get_jdtls_launcher(jdtls_path)
     if not launcher_jar then return end
 
-    -- OS-aware config dir and Java path
     local os_config = os_util.jdtls_config()
     local java_cmd = os_util.java_cmd()
 
@@ -55,14 +97,9 @@ local function setup_jdtls()
             "--add-opens", "java.base/java.lang=ALL-UNNAMED",
             "-jar", launcher_jar,
             "-configuration", jdtls_path .. "/" .. os_config,
-            "-data", workspace_dir,
+            "-data", workspace_dir(root_dir),
         },
-
-        root_dir = require("jdtls.setup").find_root({
-            "pom.xml", "build.gradle", "build.gradle.kts", ".project",
-            "settings.gradle", "settings.gradle.kts", "mvnw", "gradlew", ".git",
-        }),
-
+        root_dir = root_dir,
         settings = {
             java = {
                 imports = {
@@ -109,13 +146,17 @@ local function setup_jdtls()
                 implementationsCodeLens = { enabled = true },
             },
         },
-
         init_options = { bundles = {} },
-
-        on_attach = function(client, bufnr)
+        on_attach = function(_, attached_bufnr)
             local function map(mode, lhs, rhs, desc)
-                vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc, noremap = true, silent = true })
+                vim.keymap.set(mode, lhs, rhs, {
+                    buffer = attached_bufnr,
+                    desc = desc,
+                    noremap = true,
+                    silent = true,
+                })
             end
+
             map("n", "<leader>jo", function() jdtls.organize_imports() end, "[J]ava [O]rganize Imports")
             map("n", "<leader>jev", function() jdtls.extract_variable() end, "[J]ava [E]xtract [V]ariable")
             map("v", "<leader>jev", function() jdtls.extract_variable(true) end, "[J]ava [E]xtract [V]ariable")
@@ -139,20 +180,29 @@ local function setup_jdtls()
         end,
     }
 
-    jdtls.start_or_attach(config)
+    jdtls.start_or_attach(config, nil, { bufnr = bufnr })
 end
 
--- Register the FileType autocmd for Java (moved from core/user_commands.lua)
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = "java",
-    callback = function()
-        setup_jdtls()
-    end,
-    desc = "Set up Java LSP (JDTLS)",
-})
-
--- Return plugin spec
 return {
     "mfussenegger/nvim-jdtls",
-    ft = { "java" },
+    ft = not is_java_project and { "java" } or nil,
+    lazy = is_java_project and false or nil,
+    config = function()
+        vim.api.nvim_create_autocmd("FileType", {
+            group = AUGROUP,
+            pattern = "java",
+            callback = function(args)
+                setup_jdtls(args.buf)
+            end,
+            desc = "Set up Java LSP (JDTLS)",
+        })
+
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_is_valid(buf)
+                and vim.api.nvim_buf_is_loaded(buf)
+                and vim.bo[buf].filetype == "java" then
+                setup_jdtls(buf)
+            end
+        end
+    end,
 }
