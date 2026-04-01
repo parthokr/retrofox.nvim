@@ -67,13 +67,15 @@ If you want the script to stop instead of installing missing dependencies:
 `setup.sh` is the real install path, so here is what it actually does:
 
 1. Checks the required dependencies and installs missing ones unless you pass `--no-install`.
-2. Clones the repo to `~/.config/nvim`, or updates it in place if that directory is already this repo.
-3. Backs up an existing non-retrofox config to `~/.config/nvim.bak.<timestamp>`.
-4. Creates or rewrites `~/.local/share/retrofox/config.yaml` through the wizard.
-5. Asks for modules, colorscheme, tab width, and format-on-save.
-6. Bootstraps plugins, runs Tree-sitter parser sync, and gives Mason time to install language tools.
+2. Downloads `nvim`, `fzf`, `gum`, `tree-sitter-cli`, and `yq` from GitHub releases into `/usr/local/bin` when they are missing or too old.
+3. Installs `git`, `curl`, `node`, `npm`, and the C toolchain through `brew`, `apt`, `dnf`, or `pacman` when needed.
+4. Clones the repo to `~/.config/nvim`, or updates it in place if that directory is already this repo.
+5. Backs up an existing non-retrofox config to `~/.config/nvim.bak.<timestamp>`.
+6. Creates `~/.local/share/retrofox/config.yaml` from defaults, then runs the wizard.
+7. Asks for modules, colorscheme, tab width, format-on-save, and the dashboard banner.
+8. Bootstraps plugins, runs `:TSUpdateSync`, and gives Mason time to install language tools.
 
-If `config.yaml` already exists, the script asks whether you want to reconfigure it. If you say no, it keeps the current file.
+If `config.yaml` already exists, the script asks whether you want to reconfigure it. If you say no, it keeps the current file and only runs the banner step.
 
 Manual install:
 
@@ -84,7 +86,9 @@ cp ~/.config/nvim/config.default.yaml ~/.local/share/retrofox/config.yaml
 nvim
 ```
 
-Supported platforms are macOS and Linux. Windows is not a target here.
+That manual path assumes the required binaries are already installed.
+
+Supported platforms are macOS and Linux. The automatic release-download path currently covers `amd64` and `arm64`. Windows is not a target here.
 
 Main dependencies:
 
@@ -101,9 +105,12 @@ Main dependencies:
 A few details matter:
 
 - `tree-sitter-cli >= 0.25.0` is required because this setup uses `nvim-treesitter` on its `main` branch.
-- `setup.sh` installs `tree-sitter-cli` with `npm` into `~/.local/bin` when needed.
+- `setup.sh` installs `nvim`, `fzf`, `gum`, `tree-sitter-cli`, and `yq` from official GitHub release assets into `/usr/local/bin`.
+- On Linux, the Neovim install path downloads the official AppImage release, extracts it, and installs the extracted tree under `/usr/local/neovim`.
+- `git`, `curl`, `node`, `npm`, and the C toolchain still come from the system package manager.
 - The `yq` dependency must be the Mike Farah one. The Python `yq` is the wrong tool for this setup.
 - The C toolchain is there for parser compilation, not as a random nice-to-have.
+- `node` and `npm` are here for Mason-managed language servers. They are no longer used to install `tree-sitter-cli`.
 
 ## config
 
@@ -127,6 +134,8 @@ appearance:
 
 The default file lives in [config.default.yaml](/Users/parthokr/.config/nvim/config.default.yaml).
 
+The dashboard header is separate from `config.yaml`. If you use the installer, it lives at `~/.local/share/retrofox/banner.txt`.
+
 Useful commands:
 
 | Command | What it does |
@@ -138,7 +147,9 @@ Useful commands:
 
 ## modules
 
-Modules are opt-in. When enabled, retrofox installs the related tools and wires the editor around them.
+Modules are opt-in. When enabled, retrofox wires the editor around them and asks Mason for the LSP servers and tools Mason can actually provide.
+
+What it does not do is install full language runtimes, SDKs, compilers, or CLIs for you. Enabling a module configures Neovim. It does not try to provision your whole stack.
 
 | Module | LSP | Formatter | Linter | DAP / extras |
 |---|---|---|---|---|
@@ -155,6 +166,13 @@ Modules are opt-in. When enabled, retrofox installs the related tools and wires 
 | `competitive_programming` | — | — | — | compile/run + CP layout |
 
 Always-on core tools are small: `lua_ls`, `bashls`, and `stylua`.
+
+A few plain notes:
+
+- `gofmt` comes from the Go toolchain, not from Mason.
+- C++ and Rust debugging expect a working debugger on the machine already.
+- `competitive_programming` expects a local C++ compiler and `watch`.
+- `copilot` still needs normal Copilot authentication on your side.
 
 If a language is not listed here, it is outside the current scope. That may change later. It may also not. Both are fine.
 
@@ -216,7 +234,9 @@ There is an uninstaller:
 bash ~/.config/nvim/uninstall.sh
 ```
 
-It removes the cloned config, retrofox data, and the Neovim caches and state around it. System packages are left alone and printed back to you as a manual cleanup step. That is the safer choice.
+It removes the cloned config, retrofox data, the Neovim data/state/cache directories, and `/usr/local/bin/yq` if `setup.sh` put it there.
+
+One thing to be plain about: the uninstaller has not caught up with the newer release-download installs yet. If `setup.sh` installed `nvim`, `fzf`, `gum`, or `tree-sitter-cli` into `/usr/local/bin`, you still need to remove those manually.
 
 ## license
 
