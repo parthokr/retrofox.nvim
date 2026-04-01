@@ -26,7 +26,7 @@ return {
             require("mason-lspconfig").setup({
                 ensure_installed = servers,
                 automatic_enable = {
-                    exclude = { "jdtls" },
+                    exclude = { "jdtls", "gradle_ls" },
                 },
                 automatic_installation = true,
             })

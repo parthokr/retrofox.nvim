@@ -28,7 +28,7 @@ return {
             "c", "lua", "vim", "vimdoc", "query",
             "javascript", "html", "python", "markdown", "markdown_inline",
             "go", "rust", "java", "typescript", "tsx", "json", "yaml",
-            "bash", "dockerfile", "css", "toml",
+            "bash", "dockerfile", "css", "toml", "groovy", "kotlin",
         })
     end,
 
