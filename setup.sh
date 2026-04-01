@@ -152,27 +152,23 @@ install_neovim() {
         curl -fsSL "$release_base/$asset" -o "$appimage_path"
         chmod u+x "$appimage_path"
 
-        # Prefer the raw AppImage when it works, but fall back to extracting it
-        # on hosts without FUSE support (common in containers and servers).
-        if "$appimage_path" --version >/dev/null 2>&1; then
-            sudo mkdir -p /usr/local/bin
-            sudo mv -f "$appimage_path" /usr/local/bin/nvim
-        else
-            warn "AppImage runtime is unavailable. Extracting Neovim instead..."
-            (
-                cd "$tmp_dir"
-                "$appimage_path" --appimage-extract >/dev/null
-            )
-            if [ ! -x "$tmp_dir/squashfs-root/usr/bin/nvim" ]; then
-                err "Failed to extract Neovim AppImage."
-                exit 1
-            fi
-
-            sudo rm -rf "$install_dir"
-            sudo mv "$tmp_dir/squashfs-root" "$install_dir"
-            sudo mkdir -p /usr/local/bin
-            sudo ln -sf "$install_dir/usr/bin/nvim" /usr/local/bin/nvim
+        # Containers and some server hosts do not expose FUSE, so we do not try
+        # to execute the AppImage directly here. Treat it as a release artifact,
+        # extract it, and install the real nvim binary from the extracted tree.
+        info "Extracting Neovim AppImage..."
+        (
+            cd "$tmp_dir"
+            "$appimage_path" --appimage-extract >/dev/null
+        )
+        if [ ! -x "$tmp_dir/squashfs-root/usr/bin/nvim" ]; then
+            err "Failed to extract Neovim AppImage."
+            exit 1
         fi
+
+        sudo rm -rf "$install_dir"
+        sudo mv "$tmp_dir/squashfs-root" "$install_dir"
+        sudo mkdir -p /usr/local/bin
+        sudo ln -sf "$install_dir/usr/bin/nvim" /usr/local/bin/nvim
     elif [ "$OS" = "darwin" ]; then
         local asset=""
         case "$ARCH" in
