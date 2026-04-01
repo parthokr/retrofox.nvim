@@ -129,45 +129,62 @@ version_gte() {
 # Neovim Installation (OS-aware)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 install_neovim() {
-    info "Installing Neovim >= $NVIM_MIN_VERSION..."
-    case "$PKG_MGR" in
-        brew)
-            brew install neovim
-            ;;
-        apt)
-            # Ubuntu/Debian default repos ship very old nvim.
-            # Use the official unstable PPA for 0.12+.
-            info "Adding neovim-ppa/unstable for Neovim 0.12+..."
-            sudo apt-get install -y software-properties-common
-            sudo add-apt-repository -y ppa:neovim-ppa/unstable
-            sudo apt-get update -qq
-            sudo apt-get install -y neovim
-            ;;
-        pacman)
-            sudo pacman -S --noconfirm neovim
-            ;;
-        dnf)
-            sudo dnf install -y neovim
-            ;;
-        *)
-            # Fallback: download prebuilt binary from GitHub
-            info "Downloading Neovim prebuilt binary..."
-            local nvim_url=""
-            if [ "$OS" = "darwin" ]; then
-                nvim_url="https://github.com/neovim/neovim/releases/latest/download/nvim-macos-$(uname -m).tar.gz"
-            else
-                nvim_url="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$(uname -m).tar.gz"
-            fi
-            local tmp_dir
-            tmp_dir=$(mktemp -d)
-            curl -fsSL "$nvim_url" -o "$tmp_dir/nvim.tar.gz"
-            tar -xzf "$tmp_dir/nvim.tar.gz" -C "$tmp_dir"
-            sudo cp -r "$tmp_dir"/nvim-*/bin/* /usr/local/bin/
-            sudo cp -r "$tmp_dir"/nvim-*/lib/* /usr/local/lib/
-            sudo cp -r "$tmp_dir"/nvim-*/share/* /usr/local/share/
-            rm -rf "$tmp_dir"
-            ;;
-    esac
+    info "Installing Neovim >= $NVIM_MIN_VERSION from GitHub releases..."
+
+    local release_base="https://github.com/neovim/neovim/releases/latest/download"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    trap 'rm -rf "$tmp_dir"' RETURN
+
+    if [ "$OS" = "linux" ]; then
+        local asset=""
+        case "$ARCH" in
+            amd64) asset="nvim-linux-x86_64.appimage" ;;
+            arm64) asset="nvim-linux-arm64.appimage" ;;
+            *)
+                err "Unsupported Linux architecture for Neovim release installs: $ARCH"
+                exit 1
+                ;;
+        esac
+
+        local appimage_path="$tmp_dir/$asset"
+        curl -fsSL "$release_base/$asset" -o "$appimage_path"
+        chmod u+x "$appimage_path"
+        sudo mkdir -p /usr/local/bin
+        sudo mv -f "$appimage_path" /usr/local/bin/nvim
+    elif [ "$OS" = "darwin" ]; then
+        local asset=""
+        case "$ARCH" in
+            amd64) asset="nvim-macos-x86_64.tar.gz" ;;
+            arm64) asset="nvim-macos-arm64.tar.gz" ;;
+            *)
+                err "Unsupported macOS architecture for Neovim release installs: $ARCH"
+                exit 1
+                ;;
+        esac
+
+        local tarball_path="$tmp_dir/$asset"
+        local extracted_dir="$tmp_dir/${asset%.tar.gz}"
+        local install_dir="/usr/local/neovim"
+
+        curl -fsSL "$release_base/$asset" -o "$tarball_path"
+        tar -xzf "$tarball_path" -C "$tmp_dir"
+
+        if command -v xattr &>/dev/null; then
+            xattr -rc "$extracted_dir" >/dev/null 2>&1 || true
+        fi
+
+        sudo rm -rf "$install_dir"
+        sudo mv "$extracted_dir" "$install_dir"
+        sudo mkdir -p /usr/local/bin
+        sudo ln -sf "$install_dir/bin/nvim" /usr/local/bin/nvim
+    else
+        err "Unsupported OS for Neovim release installs: $OS"
+        exit 1
+    fi
+
+    rm -rf "$tmp_dir"
+    trap - RETURN
 
     # Verify
     if ! command -v nvim &>/dev/null; then
