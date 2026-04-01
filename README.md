@@ -72,7 +72,7 @@ If you want the script to stop instead of installing missing dependencies:
 4. Clones the repo to `~/.config/nvim`, or updates it in place if that directory is already this repo.
 5. Backs up an existing non-retrofox config to `~/.config/nvim.bak.<timestamp>`.
 6. Creates `~/.local/share/retrofox/config.yaml` from defaults, then runs the wizard.
-7. Asks for modules, extra colorscheme families, the active colorscheme, tab width, format-on-save, and the dashboard banner.
+7. Asks for modules, colorscheme, tab width, format-on-save, and the dashboard banner.
 8. Bootstraps plugins, runs `:TSUpdateSync`, and gives Mason time to install language tools.
 
 If `config.yaml` already exists, the script asks whether you want to reconfigure it. If you say no, it keeps the current file and only runs the banner step.
@@ -128,24 +128,13 @@ editor:
   format_on_save: true
 
 appearance:
-  colorscheme:
-    list:
-      - catppuccin
-      - github
-    active: "tokyonight-night"
-    active_label: "Night"
+  colorscheme: "tokyonight-night"
+  colorscheme_label: "Night"
 ```
 
 The default file lives in [config.default.yaml](/Users/parthokr/.config/nvim/config.default.yaml).
 
 The dashboard header is separate from `config.yaml`. If you use the installer, it lives at `~/.local/share/retrofox/banner.txt`.
-
-Theme config has two layers:
-
-- `appearance.colorscheme.list` is the opt-in list of extra theme families to load.
-- `appearance.colorscheme.active` is the currently selected variant.
-
-Tokyo Night and Gruvbox stay available even when the list is empty.
 
 Useful commands:
 
@@ -213,8 +202,6 @@ This setup does spend real effort on the theme side. Not because themes are impo
 
 `ThemePicker` previews variants live, stores the selected label, and keeps the surrounding UI in decent shape when you switch.
 
-One important detail: the picker only shows theme families that are actually loaded. Tokyo Night and Gruvbox are built in. Everything else has to be listed under `appearance.colorscheme.list` first.
-
 Theme families included right now:
 
 - Tokyo Night
@@ -227,8 +214,6 @@ Theme families included right now:
 - Gruvbox
 - Gruvbox Material
 
-Changing `appearance.colorscheme.list` changes the Lazy spec, so restart Neovim after editing that list.
-
 ## layout
 
 The load path is straight forward:
@@ -238,7 +223,6 @@ The load path is straight forward:
 3. [lua/core/](/Users/parthokr/.config/nvim/lua/core) is always on.
 4. [lua/modules/](/Users/parthokr/.config/nvim/lua/modules) is gated by config flags.
 5. [lua/plugins/mason.lua](/Users/parthokr/.config/nvim/lua/plugins/mason.lua) installs tooling based on enabled modules.
-6. [lua/plugins/colorschemes.lua](/Users/parthokr/.config/nvim/lua/plugins/colorschemes.lua) only loads the built-in theme families plus anything listed in `appearance.colorscheme.list`.
 
 That is the part worth preserving. The code will move around over time. The split should stay.
 

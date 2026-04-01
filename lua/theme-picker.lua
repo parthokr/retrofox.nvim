@@ -3,36 +3,96 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 local M = {}
-local catalog = require("colorschemes.catalog")
-local theme_cfg = require("retrofox.colorscheme")
+
+-- ── Curated theme catalog ───────────────────────────────────
+-- Each entry: { colorscheme_name, display_label, icon, accent_hex [, setup_fn] }
+-- Optional setup_fn is called before applying the colorscheme (for vim.g settings etc.)
+-- Grouped by family with header separators
+
+local catalog = {
+    -- ── Tokyonight ──
+    { header = "Tokyo Night" },
+    { "tokyonight-night", "Night", "󰘪", "#7aa2f7" },
+    { "tokyonight-storm", "Storm", "󰖐", "#7dcfff" },
+    { "tokyonight-moon", "Moon", "󰽥", "#c099ff" },
+    { "tokyonight-day", "Day", "󰖙", "#2e7de9" },
+
+    -- ── Catppuccin ──
+    { header = "Catppuccin" },
+    { "catppuccin-mocha", "Mocha", "󰄛", "#cba6f7" },
+    { "catppuccin-macchiato", "Macchiato", "󰄛", "#c6a0f6" },
+    { "catppuccin-frappe", "Frappé", "󰄛", "#ca9ee6" },
+    { "catppuccin-latte", "Latte", "󰄛", "#8839ef" },
+
+    -- ── Kanagawa ──
+    { header = "Kanagawa" },
+    { "kanagawa-wave", "Wave", "󰺣", "#7e9cd8" },
+    { "kanagawa-dragon", "Dragon", "󰺣", "#c4b28a" },
+    { "kanagawa-lotus", "Lotus", "󰺣", "#c84053" },
+
+    -- ── Nightfox ──
+    { header = "Nightfox" },
+    { "nightfox", "Nightfox", "", "#719cd6" },
+    { "duskfox", "Duskfox", "", "#a3be8c" },
+    { "nordfox", "Nordfox", "", "#81a1c1" },
+    { "terafox", "Terafox", "", "#5a93aa" },
+    { "carbonfox", "Carbonfox", "", "#78a9ff" },
+    { "dayfox", "Dayfox", "󰖙", "#4d688e" },
+    { "dawnfox", "Dawnfox", "󰖙", "#b4637a" },
+
+    -- ── Rosé Pine ──
+    { header = "Rosé Pine" },
+    { "rose-pine", "Main", "󰧱", "#eb6f92" },
+    { "rose-pine-moon", "Moon", "󰧱", "#ea9a97" },
+    { "rose-pine-dawn", "Dawn", "󰧱", "#d7827e" },
+
+    -- ── GitHub ──
+    { header = "GitHub" },
+    { "github_dark", "Dark", "", "#79c0ff" },
+    { "github_dark_dimmed", "Dimmed", "", "#539bf5" },
+    { "github_dark_high_contrast", "Hi-Con Dark", "", "#71b7ff" },
+    { "github_light", "Light", "󰖙", "#0969da" },
+    { "github_light_default", "Light Default", "󰖙", "#0969da" },
+
+    -- ── Everforest ──
+    { header = "Everforest" },
+    { "everforest", "Dark Hard", "󰌪", "#a7c080", function() vim.o.background = "dark"; vim.g.everforest_background = "hard" end },
+    { "everforest", "Dark Medium", "󰌪", "#a7c080", function() vim.o.background = "dark"; vim.g.everforest_background = "medium" end },
+    { "everforest", "Dark Soft", "󰌪", "#a7c080", function() vim.o.background = "dark"; vim.g.everforest_background = "soft" end },
+    { "everforest", "Light Hard", "󰌪", "#5da111", function() vim.o.background = "light"; vim.g.everforest_background = "hard" end },
+    { "everforest", "Light Medium", "󰌪", "#5da111", function() vim.o.background = "light"; vim.g.everforest_background = "medium" end },
+    { "everforest", "Light Soft", "󰌪", "#5da111", function() vim.o.background = "light"; vim.g.everforest_background = "soft" end },
+
+    -- ── Gruvbox ──
+    { header = "Gruvbox" },
+    { "gruvbox", "Dark", "󰊠", "#d79921", function() vim.o.background = "dark" end },
+    { "gruvbox", "Light", "󰊠", "#d79921", function() vim.o.background = "light" end },
+
+    -- ── Gruvbox Material ──
+    { header = "Gruvbox Material" },
+    { "gruvbox-material", "Dark Hard", "󰊠", "#d4be98", function() vim.o.background = "dark"; vim.g.gruvbox_material_background = "hard" end },
+    { "gruvbox-material", "Dark Medium", "󰊠", "#d4be98", function() vim.o.background = "dark"; vim.g.gruvbox_material_background = "medium" end },
+    { "gruvbox-material", "Dark Soft", "󰊠", "#d4be98", function() vim.o.background = "dark"; vim.g.gruvbox_material_background = "soft" end },
+    { "gruvbox-material", "Light Hard", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "hard" end },
+    { "gruvbox-material", "Light Medium", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "medium" end },
+    { "gruvbox-material", "Light Soft", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "soft" end },
+}
 
 -- ── Persistence ─────────────────────────────────────────────
 -- Uses config.yaml for persistence via the retrofox module.
+
+local _rf_ok, _rf = pcall(require, "retrofox")
 
 -- Track the confirmed variant label for themes that share a colorscheme name
 -- (e.g. all Everforest variants are "everforest" but differ by label)
 local active_label = nil
 
-local function enabled_catalog()
-    local items = {}
-
-    for _, family_id in ipairs(theme_cfg.enabled_families()) do
-        local family = catalog.families[family_id]
-        if family then
-            table.insert(items, { header = family.header })
-            for _, entry in ipairs(family.variants) do
-                local item = vim.deepcopy(entry)
-                item.family = family_id
-                table.insert(items, item)
-            end
-        end
-    end
-
-    return items
-end
-
 local function read_persisted()
-    return theme_cfg.active()
+    if not _rf_ok then return nil end
+    local name = _rf.get("appearance.colorscheme")
+    local label = _rf.get("appearance.colorscheme_label")
+    if name then return { name = name, label = label } end
+    return nil
 end
 
 -- Initialize active_label from persisted data at require-time
@@ -43,26 +103,25 @@ end
 
 local function save_colorscheme(entry)
     active_label = entry[2]
-    theme_cfg.set_active(entry[1], entry[2])
+    if _rf_ok then
+        _rf.set("appearance.colorscheme", entry[1])
+        _rf.set("appearance.colorscheme_label", entry[2])
+    end
 end
 
 local function find_catalog_entry(name, label)
-    for _, item in ipairs(enabled_catalog()) do
+    for _, item in ipairs(catalog) do
         if not item.header and item[1] == name and item[2] == label then
             return item
         end
     end
     -- Fallback: match by name only (for themes without setup hooks)
-    for _, item in ipairs(enabled_catalog()) do
+    for _, item in ipairs(catalog) do
         if not item.header and item[1] == name then
             return item
         end
     end
     return nil
-end
-
-local function is_active_entry(entry, active_name)
-    return entry[1] == active_name and (not entry[5] or active_label == entry[2])
 end
 
 local function load_saved_colorscheme()
@@ -73,24 +132,10 @@ local function load_saved_colorscheme()
     local entry = find_catalog_entry(data.name, data.label)
     if entry then
         if entry[5] then entry[5]() end
-        if pcall(vim.cmd.colorscheme, entry[1]) then
-            return
-        end
+        pcall(vim.cmd.colorscheme, entry[1])
+    else
+        pcall(vim.cmd.colorscheme, data.name)
     end
-
-    local fallback = theme_cfg.default_active()
-    local fallback_entry = find_catalog_entry(fallback.name, fallback.label)
-    vim.schedule(function()
-        vim.notify_once(
-            "Configured colorscheme is not loaded. Add its family under appearance.colorscheme.list. Using "
-                .. fallback.name .. " for now.",
-            vim.log.levels.WARN,
-            { title = "Theme" }
-        )
-    end)
-    active_label = fallback.label
-    if fallback_entry and fallback_entry[5] then fallback_entry[5]() end
-    pcall(vim.cmd.colorscheme, fallback.name)
 end
 
 -- ── Fuzzy matching ──────────────────────────────────────────
@@ -117,7 +162,6 @@ end
 -- ── Build display lines & index ─────────────────────────────
 
 local function build_lines(filter)
-    local visible_catalog = enabled_catalog()
     local lines = {}
     local entries = {}
     local active_cs = vim.g.colors_name or ""
@@ -126,7 +170,7 @@ local function build_lines(filter)
     local visible_themes = 0
 
     -- Count total themes
-    for _, item in ipairs(visible_catalog) do
+    for _, item in ipairs(catalog) do
         if not item.header then total_themes = total_themes + 1 end
     end
 
@@ -156,7 +200,9 @@ local function build_lines(filter)
             entries[idx] = false
             for _, vi in ipairs(visible) do
                 local cs_name, label, icon = vi[1], vi[2], vi[3]
-                local is_active = is_active_entry(vi, active_cs)
+                -- For themes sharing a name (Everforest, Gruvbox etc.), match by label too
+                local is_active = (cs_name == active_cs)
+                    and (not vi[5] or active_label == label) -- no setup_fn → name match is enough
                 local marker = is_active and " ✦" or "  "
                 idx = idx + 1
                 lines[idx] = string.format("  %s %s  %s · %s", marker, icon, label, cs_name)
@@ -166,7 +212,7 @@ local function build_lines(filter)
         end
     end
 
-    for _, item in ipairs(visible_catalog) do
+    for _, item in ipairs(catalog) do
         if item.header then
             flush_group()
             current_header = item.header
@@ -246,7 +292,6 @@ end
 local function apply_extmarks(buf, lines, entries)
     vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 
-    local active = vim.g.colors_name or ""
     for i, line in ipairs(lines) do
         local entry = entries[i]
         if not entry then
@@ -254,7 +299,8 @@ local function apply_extmarks(buf, lines, entries)
                 vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerHeader", i - 1, 0, -1)
             end
         else
-            if is_active_entry(entry, active) then
+            local active = vim.g.colors_name or ""
+            if entry[1] == active then
                 vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerActive", i - 1, 0, -1)
             else
                 local dot_pos = line:find("·")
@@ -291,7 +337,6 @@ function M.open()
     local lines, entries, vis, total = build_lines(nil)
     local original_cs = vim.g.colors_name or "default"
     local original_bg = vim.o.background
-    local original_entry = find_catalog_entry(original_cs, active_label)
     local current_filter = nil
 
     -- Calculate window size
@@ -468,9 +513,6 @@ function M.open()
 
     local function restore_original()
         vim.o.background = original_bg
-        if original_entry and original_entry[5] then
-            original_entry[5]()
-        end
         pcall(vim.cmd.colorscheme, original_cs)
     end
 

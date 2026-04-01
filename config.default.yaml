@@ -24,11 +24,7 @@ editor:
   relative_numbers: true
   format_on_save: true
 
-# Theme families in `list` are opt-in.
-# Tokyo Night and Gruvbox stay available even when the list is empty.
-# `active` and `active_label` are managed by :ThemePicker.
+# Managed by :ThemePicker — rarely edited manually
 appearance:
-  colorscheme:
-    list: []
-    active: "tokyonight-night"
-    active_label: "Night"
+  colorscheme: "tokyonight-night"
+  colorscheme_label: "Night"
