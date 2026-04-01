@@ -18,6 +18,7 @@ NVIM_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
 DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/retrofox"
 CONFIG_FILE="$DATA_DIR/config.yaml"
 CHECKSUM_FILE="$DATA_DIR/.config_checksum"
+BANNER_FILE="$DATA_DIR/banner.txt"
 NVIM_MIN_VERSION="0.12.0"
 
 # ── Flags ────────────────────────────────────────────────────
@@ -87,6 +88,36 @@ install_pkg() {
 
 compute_checksum() {
     $SHA_CMD "$1" | cut -d' ' -f1
+}
+
+write_default_banner() {
+    cp "$NVIM_DIR/banner.default.txt" "$BANNER_FILE"
+}
+
+configure_banner() {
+    echo ""
+    if [ -f "$BANNER_FILE" ]; then
+        info "Dashboard banner: $BANNER_FILE"
+    else
+        info "Dashboard banner"
+    fi
+
+    if gum confirm "Customize the dashboard banner?"; then
+        local banner
+        banner=$(gum write --height 12 --placeholder "Paste or type your banner here")
+        if [ -n "${banner//[[:space:]]/}" ]; then
+            printf "%s\n" "$banner" > "$BANNER_FILE"
+            ok "Custom banner saved"
+            return
+        fi
+        warn "Banner was empty. Using default banner."
+    elif [ -f "$BANNER_FILE" ]; then
+        ok "Keeping existing banner"
+        return
+    fi
+
+    write_default_banner
+    ok "Default banner saved"
 }
 
 # Compare two semver strings: returns 0 if $1 >= $2
@@ -426,6 +457,7 @@ run_wizard() {
     # If config already exists, ask if user wants to reconfigure
     if [ -f "$CONFIG_FILE" ]; then
         if ! gum confirm "Config already exists. Reconfigure?"; then
+            configure_banner
             ok "Keeping existing config"
             return
         fi
@@ -492,6 +524,8 @@ run_wizard() {
 
     echo ""
     ok "Configuration saved to $CONFIG_FILE"
+
+    configure_banner
 }
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

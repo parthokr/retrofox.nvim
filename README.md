@@ -19,6 +19,8 @@ That split is the useful part. It keeps the common path boring. Boring is good.
 
 The core gives you search, file navigation, completion, diagnostics, formatting, git, terminal, Treesitter, and theme switching. Modules add language servers, formatters, linters, debuggers, and a few language-specific helpers.
 
+Tree-sitter is part of the core here. It is not an extra. This setup depends on `nvim-treesitter` and on `tree-sitter-cli >= 0.25.0`.
+
 ## what it does well
 
 - One real config file: `~/.local/share/retrofox/config.yaml`
@@ -49,7 +51,29 @@ Guided install:
 bash <(curl -fsSL https://raw.githubusercontent.com/parthokr/retrofox.nvim/main/setup.sh)
 ```
 
-That script checks dependencies, clones the repo, asks which modules you want, writes `config.yaml`, syncs plugins, installs Treesitter parsers, and lets Mason fetch the language tools.
+If you already cloned the repo:
+
+```bash
+cd ~/.config/nvim
+./setup.sh
+```
+
+If you want the script to stop instead of installing missing dependencies:
+
+```bash
+./setup.sh --no-install
+```
+
+`setup.sh` is the real install path, so here is what it actually does:
+
+1. Checks the required dependencies and installs missing ones unless you pass `--no-install`.
+2. Clones the repo to `~/.config/nvim`, or updates it in place if that directory is already this repo.
+3. Backs up an existing non-retrofox config to `~/.config/nvim.bak.<timestamp>`.
+4. Creates or rewrites `~/.local/share/retrofox/config.yaml` through the wizard.
+5. Asks for modules, colorscheme, tab width, and format-on-save.
+6. Bootstraps plugins, runs Tree-sitter parser sync, and gives Mason time to install language tools.
+
+If `config.yaml` already exists, the script asks whether you want to reconfigure it. If you say no, it keeps the current file.
 
 Manual install:
 
@@ -65,6 +89,7 @@ Supported platforms are macOS and Linux. Windows is not a target here.
 Main dependencies:
 
 - Neovim `>= 0.12.0`
+- `tree-sitter-cli >= 0.25.0`
 - `git`
 - `curl`
 - Node.js and `npm`
@@ -72,6 +97,13 @@ Main dependencies:
 - [mikefarah/yq](https://github.com/mikefarah/yq)
 - `fzf`
 - `gum` for the setup wizard
+
+A few details matter:
+
+- `tree-sitter-cli >= 0.25.0` is required because this setup uses `nvim-treesitter` on its `main` branch.
+- `setup.sh` installs `tree-sitter-cli` with `npm` into `~/.local/bin` when needed.
+- The `yq` dependency must be the Mike Farah one. The Python `yq` is the wrong tool for this setup.
+- The C toolchain is there for parser compilation, not as a random nice-to-have.
 
 ## config
 

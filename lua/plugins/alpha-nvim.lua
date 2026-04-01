@@ -4,48 +4,37 @@ return {
         local alpha = require("alpha")
         local dashboard = require("alpha.themes.dashboard")
 
-        local header = {
-            "",
-            "  ██████╗   █████╗  ██████╗  ████████╗ ██╗  ██╗  ██████╗  ",
-            "  ██╔══██╗ ██╔══██╗ ██╔══██╗ ╚══██╔══╝ ██║  ██║ ██╔═══██╗ ",
-            "  ██████╔╝ ███████║ ██████╔╝    ██║    ████████║ ██║   ██║ ",
-            "  ██╔═══╝  ██╔══██║ ██╔══██╗    ██║    ██╔══██║ ██║   ██║ ",
-            "  ██║      ██║  ██║ ██║  ██║    ██║    ██║  ██║ ╚██████╔╝ ",
-            "  ╚═╝      ╚═╝  ╚═╝ ╚═╝  ╚═╝    ╚═╝    ╚═╝  ╚═╝  ╚═════╝  ",
-            "",
-        }
-
-        local mottos = {
-            "Keep the hot path quiet.",
-            "Local-first beats network-first.",
-            "Measure before you ornament.",
-            "Fewer surfaces. Sharper signals.",
-            "Fast edits come from clean defaults.",
-            "Latency is a design bug.",
-            "Polish is restraint under pressure.",
-        }
-
-        local function day_motto()
-            local day = tonumber(os.date("%j")) or 1
-            return mottos[((day - 1) % #mottos) + 1]
+        local function banner_path()
+            local ok, rf = pcall(require, "retrofox")
+            if ok then
+                return rf.data_dir() .. "/banner.txt"
+            end
+            return (os.getenv("XDG_DATA_HOME") or (os.getenv("HOME") .. "/.local/share")) .. "/retrofox/banner.txt"
         end
 
-        local function wrap_text(text, max_width)
-            if type(text) ~= "string" or text == "" then return { "" } end
-            local width = math.max(30, max_width or 60)
-            local lines, line = {}, ""
-            for word in text:gmatch("%S+") do
-                if line == "" then
-                    line = word
-                elseif (#line + 1 + #word) <= width then
-                    line = line .. " " .. word
-                else
-                    table.insert(lines, line)
-                    line = word
+        local function load_header()
+            local path = banner_path()
+            local lines = { "" }
+
+            if vim.fn.filereadable(path) == 1 then
+                local read = vim.fn.readfile(path)
+                if type(read) == "table" and #read > 0 then
+                    vim.list_extend(lines, read)
+                    table.insert(lines, "")
+                    return lines
                 end
             end
-            if line ~= "" then table.insert(lines, line) end
-            return #lines > 0 and lines or { text }
+
+            return {
+                "",
+                "  ██████╗   █████╗  ██████╗  ████████╗ ██╗  ██╗  ██████╗",
+                "  ██╔══██╗ ██╔══██╗ ██╔══██╗ ╚══██╔══╝ ██║  ██║ ██╔═══██╗",
+                "  ██████╔╝ ███████║ ██████╔╝    ██║    ████████║ ██║   ██║",
+                "  ██╔═══╝  ██╔══██║ ██╔══██╗    ██║    ██╔══██║ ██║   ██║",
+                "  ██║      ██║  ██║ ██║  ██║    ██║    ██║  ██║ ╚██████╔╝",
+                "  ╚═╝      ╚═╝  ╚═╝ ╚═╝  ╚═╝    ╚═╝    ╚═╝  ╚═╝  ╚═════╝",
+                "",
+            }
         end
 
         local function action(shortcut, icon, label, command)
@@ -58,7 +47,7 @@ return {
             return button
         end
 
-        dashboard.section.header.val = header
+        dashboard.section.header.val = load_header()
         dashboard.section.header.opts.position = "center"
         dashboard.section.header.opts.hl = "AlphaHeader"
 
@@ -167,16 +156,9 @@ return {
         dashboard.section.footer.val = function()
             local stats = require("lazy").stats()
             local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
-            local lines = {
+            return {
                 string.format("⚡ %d/%d plugins · %.0fms", stats.loaded, stats.count, ms),
             }
-
-            local max_width = math.max(30, math.min(vim.o.columns - 12, 70))
-            for _, wrapped in ipairs(wrap_text(day_motto(), max_width)) do
-                table.insert(lines, "  " .. wrapped)
-            end
-
-            return lines
         end
         dashboard.section.footer.opts.hl = "AlphaFooter"
         dashboard.section.footer.opts.position = "center"
