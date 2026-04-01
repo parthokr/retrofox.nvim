@@ -80,7 +80,7 @@ local catalog = {
 
 -- ── Filter catalog to enabled families ──────────────────────
 -- Tokyo Night and Gruvbox are always available. Other families
--- require an explicit colorschemes.<key>: true in config.yaml.
+-- must appear in editor.colorschemes.families to be loaded.
 
 local _rf_ok, _rf = pcall(require, "retrofox")
 
@@ -101,7 +101,7 @@ local header_to_config_key = {
 local function build_active_catalog()
     local enabled = {}
     if _rf_ok then
-        local fam_list = _rf.get("colorschemes.families")
+        local fam_list = _rf.get("editor.colorschemes.families")
         if type(fam_list) == "table" then
             for _, f in ipairs(fam_list) do
                 enabled[f] = true
@@ -140,10 +140,11 @@ local active_label = nil
 
 local function read_persisted()
     if not _rf_ok then return nil end
-    local name = _rf.get("colorschemes.active")
-    local label = _rf.get("colorschemes.active_label")
+    local raw = _rf.get("editor.colorschemes.active")
+    if not raw then return nil end
+    local name, label = raw:match("^([^:]+):(.+)$")
     if name then return { name = name, label = label } end
-    return nil
+    return { name = raw, label = nil }
 end
 
 -- Initialize active_label from persisted data at require-time
@@ -155,8 +156,9 @@ end
 local function save_colorscheme(entry)
     active_label = entry[2]
     if _rf_ok then
-        _rf.set("colorschemes.active", entry[1])
-        _rf.set("colorschemes.active_label", entry[2])
+        local val = entry[1]
+        if entry[2] then val = val .. ":" .. entry[2] end
+        _rf.set("editor.colorschemes.active", val)
     end
 end
 

@@ -10,7 +10,7 @@ local function is_enabled(theme)
     if always_on[theme] then return true end
     local ok, rf = pcall(require, "retrofox")
     if not ok then return true end
-    local families = rf.get("colorschemes.families")
+    local families = rf.get("editor.colorschemes.families")
     if type(families) ~= "table" then return false end
     for _, fam in ipairs(families) do
         if fam == theme then return true end

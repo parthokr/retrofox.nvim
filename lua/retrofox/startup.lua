@@ -102,10 +102,11 @@ vim.api.nvim_create_user_command("RetrofoxApply", function()
         vim.opt.softtabstop = ed.tab_width
     end
 
-    -- Re-apply colorscheme
-    local cs = new_cfg.colorschemes or {}
-    if cs.active then
-        pcall(vim.cmd.colorscheme, cs.active)
+    -- Re-apply colorscheme (active is "colorscheme:variant")
+    local cs = (ed.colorschemes or {}).active
+    if cs then
+        local name = cs:match("^([^:]+)") or cs
+        pcall(vim.cmd.colorscheme, name)
     end
 
     -- ── Clean up disabled modules ───────────────────────────

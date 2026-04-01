@@ -19,15 +19,12 @@ modules:
   copilot: false
   competitive_programming: false
 
-# Tokyo Night and Gruvbox are always available.
-# Add extra families to the list, pick the active variant.
-# active/active_label are managed by :ThemePicker.
-colorschemes:
-  families: []
-  active: "tokyonight-night"
-  active_label: "Night"
-
 editor:
   tab_width: 4
   relative_numbers: true
   format_on_save: true
+  # Tokyo Night and Gruvbox are always available.
+  # Add extra families to the list. active is colorscheme:variant.
+  colorschemes:
+    families: []
+    active: "tokyonight-night:Night"

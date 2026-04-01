@@ -716,11 +716,11 @@ run_wizard() {
         "github-nvim-theme" "everforest" "gruvbox-material" \
     )
 
-    yq -i '.colorschemes.families = []' "$CONFIG_FILE"
+    yq -i '.editor.colorschemes.families = []' "$CONFIG_FILE"
     if [ -n "$cs_families" ]; then
         while IFS= read -r fam; do
             [ -z "$fam" ] && continue
-            yq -i ".colorschemes.families += [\"$fam\"]" "$CONFIG_FILE"
+            yq -i ".editor.colorschemes.families += [\"$fam\"]" "$CONFIG_FILE"
         done <<< "$cs_families"
     fi
     ok "Colorscheme families configured"
@@ -781,7 +781,7 @@ gruvbox-material"
 
     local colorscheme
     colorscheme=$(echo "$cs_choices" | gum choose --height 15)
-    yq -i ".colorschemes.active = \"$colorscheme\"" "$CONFIG_FILE"
+    yq -i ".editor.colorschemes.active = \"$colorscheme\"" "$CONFIG_FILE"
     ok "Colorscheme: $colorscheme"
 
     # ── Tab width ────────────────────────────────────────────
