@@ -706,21 +706,112 @@ run_wizard() {
     done
     ok "Modules configured"
 
-    # ── Colorscheme ──────────────────────────────────────────
+    # ── Colorscheme families ─────────────────────────────────
     echo ""
-    info "Choose your colorscheme:"
-    local colorscheme
-    colorscheme=$(gum choose --height 15 \
-        "tokyonight-night" "tokyonight-storm" "tokyonight-moon" \
-        "catppuccin-mocha" "catppuccin-macchiato" "catppuccin-frappe" \
-        "kanagawa-wave" "kanagawa-dragon" \
-        "nightfox" "duskfox" "carbonfox" \
-        "rose-pine" "rose-pine-moon" \
-        "github_dark" "github_dark_dimmed" \
-        "everforest" "gruvbox" "gruvbox-material" \
+    info "Choose extra colorscheme families to install:"
+    info "Tokyo Night and Gruvbox are always available."
+    local theme_families
+    theme_families=$(gum choose --no-limit --height 12 \
+        "catppuccin" "kanagawa" "nightfox" "rose-pine" \
+        "github" "everforest" "gruvbox-material" \
     )
-    yq -i ".appearance.colorscheme = \"$colorscheme\"" "$CONFIG_FILE"
-    ok "Colorscheme: $colorscheme"
+    yq -i '.appearance.colorscheme.list = []' "$CONFIG_FILE"
+    for family in catppuccin kanagawa nightfox rose-pine github everforest gruvbox-material; do
+        if echo "$theme_families" | grep -q "^${family}$"; then
+            yq -i ".appearance.colorscheme.list += [\"$family\"]" "$CONFIG_FILE"
+        fi
+    done
+    ok "Extra colorscheme families configured"
+
+    # ── Active colorscheme ───────────────────────────────────
+    echo ""
+    info "Choose your active colorscheme:"
+    local -a theme_choices=(
+        "Tokyo Night | Night | tokyonight-night"
+        "Tokyo Night | Storm | tokyonight-storm"
+        "Tokyo Night | Moon | tokyonight-moon"
+        "Tokyo Night | Day | tokyonight-day"
+        "Gruvbox | Dark | gruvbox"
+        "Gruvbox | Light | gruvbox"
+    )
+
+    if echo "$theme_families" | grep -q "^catppuccin$"; then
+        theme_choices+=(
+            "Catppuccin | Mocha | catppuccin-mocha"
+            "Catppuccin | Macchiato | catppuccin-macchiato"
+            "Catppuccin | Frappé | catppuccin-frappe"
+            "Catppuccin | Latte | catppuccin-latte"
+        )
+    fi
+    if echo "$theme_families" | grep -q "^kanagawa$"; then
+        theme_choices+=(
+            "Kanagawa | Wave | kanagawa-wave"
+            "Kanagawa | Dragon | kanagawa-dragon"
+            "Kanagawa | Lotus | kanagawa-lotus"
+        )
+    fi
+    if echo "$theme_families" | grep -q "^nightfox$"; then
+        theme_choices+=(
+            "Nightfox | Nightfox | nightfox"
+            "Nightfox | Duskfox | duskfox"
+            "Nightfox | Nordfox | nordfox"
+            "Nightfox | Terafox | terafox"
+            "Nightfox | Carbonfox | carbonfox"
+            "Nightfox | Dayfox | dayfox"
+            "Nightfox | Dawnfox | dawnfox"
+        )
+    fi
+    if echo "$theme_families" | grep -q "^rose-pine$"; then
+        theme_choices+=(
+            "Rosé Pine | Main | rose-pine"
+            "Rosé Pine | Moon | rose-pine-moon"
+            "Rosé Pine | Dawn | rose-pine-dawn"
+        )
+    fi
+    if echo "$theme_families" | grep -q "^github$"; then
+        theme_choices+=(
+            "GitHub | Dark | github_dark"
+            "GitHub | Dimmed | github_dark_dimmed"
+            "GitHub | Hi-Con Dark | github_dark_high_contrast"
+            "GitHub | Light | github_light"
+            "GitHub | Light Default | github_light_default"
+        )
+    fi
+    if echo "$theme_families" | grep -q "^everforest$"; then
+        theme_choices+=(
+            "Everforest | Dark Hard | everforest"
+            "Everforest | Dark Medium | everforest"
+            "Everforest | Dark Soft | everforest"
+            "Everforest | Light Hard | everforest"
+            "Everforest | Light Medium | everforest"
+            "Everforest | Light Soft | everforest"
+        )
+    fi
+    if echo "$theme_families" | grep -q "^gruvbox-material$"; then
+        theme_choices+=(
+            "Gruvbox Material | Dark Hard | gruvbox-material"
+            "Gruvbox Material | Dark Medium | gruvbox-material"
+            "Gruvbox Material | Dark Soft | gruvbox-material"
+            "Gruvbox Material | Light Hard | gruvbox-material"
+            "Gruvbox Material | Light Medium | gruvbox-material"
+            "Gruvbox Material | Light Soft | gruvbox-material"
+        )
+    fi
+
+    local colorscheme_choice
+    colorscheme_choice=$(gum choose --height 20 "${theme_choices[@]}")
+
+    local family_label=""
+    local colorscheme_label=""
+    local colorscheme_name=""
+    IFS='|' read -r family_label colorscheme_label colorscheme_name <<< "$colorscheme_choice"
+    family_label=$(printf '%s' "$family_label" | xargs)
+    colorscheme_label=$(printf '%s' "$colorscheme_label" | xargs)
+    colorscheme_name=$(printf '%s' "$colorscheme_name" | xargs)
+
+    yq -i ".appearance.colorscheme.active = \"$colorscheme_name\"" "$CONFIG_FILE"
+    yq -i ".appearance.colorscheme.active_label = \"$colorscheme_label\"" "$CONFIG_FILE"
+    ok "Colorscheme: $family_label / $colorscheme_label"
 
     # ── Tab width ────────────────────────────────────────────
     echo ""

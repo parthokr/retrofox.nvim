@@ -1,11 +1,10 @@
--- lua/plugins/colorschemes.lua
 local specs = {}
+local catalog = require("colorschemes.catalog")
+local theme_cfg = require("retrofox.colorscheme")
 
--- List of colorscheme modules (excludes utils.lua which is a helper, not a plugin spec)
-local themes = { "github-nvim-theme", "gruvbox-material", "kanagawa", "nightfox", "tokyonight", "catppuccin", "gruvbox", "rose-pine", "everforest" }
-
-for _, theme in ipairs(themes) do
-    local ok, spec = pcall(require, "colorschemes." .. theme)
+for _, family_id in ipairs(theme_cfg.enabled_families()) do
+    local family = catalog.families[family_id]
+    local ok, spec = family and pcall(require, "colorschemes." .. family.module)
     if ok and spec then
         table.insert(specs, spec)
     end
