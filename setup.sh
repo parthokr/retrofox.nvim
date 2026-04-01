@@ -64,6 +64,8 @@ detect_os() {
     else
         SHA_CMD="sha256sum"
     fi
+
+    ensure_usr_local_bin_in_path
 }
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -73,6 +75,13 @@ info()  { printf "\033[1;34m▸\033[0m %s\n" "$1"; }
 ok()    { printf "\033[1;32m✓\033[0m %s\n" "$1"; }
 warn()  { printf "\033[1;33m⚠\033[0m %s\n" "$1"; }
 err()   { printf "\033[1;31m✗\033[0m %s\n" "$1"; }
+
+ensure_usr_local_bin_in_path() {
+    case ":$PATH:" in
+        *:/usr/local/bin:*) ;;
+        *) export PATH="/usr/local/bin:$PATH" ;;
+    esac
+}
 
 install_pkg() {
     local pkg="$1"
@@ -88,6 +97,113 @@ install_pkg() {
 
 compute_checksum() {
     $SHA_CMD "$1" | cut -d' ' -f1
+}
+
+github_latest_tag() {
+    local repo="$1"
+    local resolved=""
+    local tag=""
+
+    resolved=$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$repo/releases/latest" 2>/dev/null || true)
+    if [ -n "$resolved" ]; then
+        tag="${resolved##*/}"
+    fi
+
+    if [ -z "$tag" ]; then
+        tag=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
+            | grep -m1 '"tag_name"' \
+            | sed -E 's/.*"([^"]+)".*/\1/' || true)
+    fi
+
+    if [ -z "$tag" ]; then
+        err "Failed to resolve the latest release tag for $repo"
+        return 1
+    fi
+
+    printf '%s\n' "$tag"
+}
+
+install_release_tarball_binary() {
+    local repo="$1"
+    local tag="$2"
+    local asset="$3"
+    local binary_name="$4"
+    local tmp_dir
+    local tarball_path
+    local binary_path=""
+    local url="https://github.com/$repo/releases/download/$tag/$asset"
+
+    tmp_dir=$(mktemp -d)
+    tarball_path="$tmp_dir/$asset"
+
+    if ! curl -fsSL "$url" -o "$tarball_path"; then
+        err "Failed to download $binary_name from $url"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    if ! tar -xzf "$tarball_path" -C "$tmp_dir"; then
+        err "Failed to extract $asset"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    if [ "$OS" = "darwin" ] && command -v xattr &>/dev/null; then
+        xattr -rc "$tmp_dir" >/dev/null 2>&1 || true
+    fi
+
+    binary_path=$(find "$tmp_dir" -type f -name "$binary_name" 2>/dev/null | head -n1)
+
+    if [ -z "$binary_path" ]; then
+        err "Could not find $binary_name in $asset"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    chmod u+x "$binary_path"
+    ensure_usr_local_bin_in_path
+    sudo mkdir -p /usr/local/bin
+    sudo mv "$binary_path" "/usr/local/bin/$binary_name"
+    sudo chmod 0755 "/usr/local/bin/$binary_name"
+    hash -r 2>/dev/null || true
+
+    rm -rf "$tmp_dir"
+}
+
+install_release_gzip_binary() {
+    local repo="$1"
+    local tag="$2"
+    local asset="$3"
+    local binary_name="$4"
+    local tmp_dir
+    local archive_path
+    local binary_path
+    local url="https://github.com/$repo/releases/download/$tag/$asset"
+
+    tmp_dir=$(mktemp -d)
+    archive_path="$tmp_dir/$asset"
+    binary_path="$tmp_dir/$binary_name"
+
+    if ! curl -fsSL "$url" -o "$archive_path"; then
+        err "Failed to download $binary_name from $url"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    if ! gzip -dc "$archive_path" > "$binary_path"; then
+        err "Failed to extract $asset"
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    chmod u+x "$binary_path"
+    ensure_usr_local_bin_in_path
+    sudo mkdir -p /usr/local/bin
+    sudo mv "$binary_path" "/usr/local/bin/$binary_name"
+    sudo chmod 0755 "/usr/local/bin/$binary_name"
+    hash -r 2>/dev/null || true
+
+    rm -rf "$tmp_dir"
 }
 
 write_default_banner() {
@@ -221,6 +337,84 @@ install_neovim() {
     fi
 }
 
+install_fzf() {
+    info "Installing fzf from GitHub releases..."
+
+    local repo="junegunn/fzf"
+    local tag=""
+    local version=""
+    local asset=""
+
+    tag=$(github_latest_tag "$repo") || return 1
+    version="${tag#v}"
+
+    case "$OS:$ARCH" in
+        linux:amd64)  asset="fzf-${version}-linux_amd64.tar.gz" ;;
+        linux:arm64)  asset="fzf-${version}-linux_arm64.tar.gz" ;;
+        darwin:amd64) asset="fzf-${version}-darwin_amd64.tar.gz" ;;
+        darwin:arm64) asset="fzf-${version}-darwin_arm64.tar.gz" ;;
+        *)
+            err "Unsupported platform for fzf release installs: $OS/$ARCH"
+            return 1
+            ;;
+    esac
+
+    install_release_tarball_binary "$repo" "$tag" "$asset" "fzf" || return 1
+    ok "fzf $version installed"
+}
+
+install_gum() {
+    info "Installing gum from GitHub releases..."
+
+    local repo="charmbracelet/gum"
+    local tag=""
+    local version=""
+    local asset=""
+
+    tag=$(github_latest_tag "$repo") || return 1
+    version="${tag#v}"
+
+    case "$OS:$ARCH" in
+        linux:amd64)  asset="gum_${version}_Linux_x86_64.tar.gz" ;;
+        linux:arm64)  asset="gum_${version}_Linux_arm64.tar.gz" ;;
+        darwin:amd64) asset="gum_${version}_Darwin_x86_64.tar.gz" ;;
+        darwin:arm64) asset="gum_${version}_Darwin_arm64.tar.gz" ;;
+        *)
+            err "Unsupported platform for gum release installs: $OS/$ARCH"
+            return 1
+            ;;
+    esac
+
+    install_release_tarball_binary "$repo" "$tag" "$asset" "gum" || return 1
+    ok "gum $version installed"
+}
+
+install_tree_sitter() {
+    info "Installing tree-sitter-cli from GitHub releases..."
+
+    local repo="tree-sitter/tree-sitter"
+    local tag=""
+    local version=""
+    local asset=""
+
+    tag=$(github_latest_tag "$repo") || return 1
+    version="${tag#v}"
+
+    case "$OS:$ARCH" in
+        linux:amd64)  asset="tree-sitter-linux-x64.gz" ;;
+        linux:arm64)  asset="tree-sitter-linux-arm64.gz" ;;
+        darwin:amd64) asset="tree-sitter-macos-x64.gz" ;;
+        darwin:arm64) asset="tree-sitter-macos-arm64.gz" ;;
+        *)
+            err "Unsupported platform for tree-sitter release installs: $OS/$ARCH"
+            return 1
+            ;;
+    esac
+
+    install_release_gzip_binary "$repo" "$tag" "$asset" "tree-sitter" || return 1
+    ok "tree-sitter-cli $version installed"
+}
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Dependency checks
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -315,8 +509,12 @@ check_deps() {
     if command -v fzf &>/dev/null; then
         ok "fzf found"
     else
-        missing+=("fzf")
         warn "fzf not found"
+        if [ "$AUTO_INSTALL" = true ]; then
+            install_fzf || warn "Failed to install fzf — install manually from https://github.com/junegunn/fzf/releases"
+        else
+            err "fzf is required. Install from https://github.com/junegunn/fzf/releases"
+        fi
     fi
 
     # yq (must be mikefarah/yq, NOT the Python kislyuk/yq)
@@ -354,31 +552,9 @@ check_deps() {
     else
         warn "gum not found"
         if [ "$AUTO_INSTALL" = true ]; then
-            if [ "$PKG_MGR" = "brew" ]; then
-                missing+=("gum")
-            elif [ "$PKG_MGR" = "apt" ]; then
-                info "Adding Charm apt repository for gum..."
-                (
-                    sudo mkdir -p /etc/apt/keyrings
-                    curl -fsSL https://repo.charm.sh/apt/gpg.key \
-                        | sudo gpg --yes --dearmor -o /etc/apt/keyrings/charm.gpg
-                    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" \
-                        | sudo tee /etc/apt/sources.list.d/charm.list >/dev/null
-                    sudo apt-get update -qq
-                ) || warn "Failed to add Charm repo — gum may need manual install"
-                missing+=("gum")
-            elif [ "$PKG_MGR" = "pacman" ]; then
-                missing+=("gum")
-            elif [ "$PKG_MGR" = "dnf" ]; then
-                info "Adding Charm repo for gum..."
-                echo '[charm]
-name=Charm
-baseurl=https://repo.charm.sh/yum/
-enabled=1
-gpgcheck=1
-gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo >/dev/null
-                missing+=("gum")
-            fi
+            install_gum || warn "Failed to install gum — install manually from https://github.com/charmbracelet/gum/releases"
+        else
+            err "gum is required. Install from https://github.com/charmbracelet/gum/releases"
         fi
     fi
 
@@ -401,7 +577,6 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
     echo ""
 
     # ── tree-sitter-cli (>= 0.25.0, needed by nvim-treesitter main) ──
-    # npm is already a required dep (Mason), so we use it for tree-sitter-cli too.
     local TS_MIN="0.25.0"
     local ts_needs_install=false
 
@@ -421,21 +596,25 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
 
     if [ "$ts_needs_install" = true ]; then
         if [ "$AUTO_INSTALL" = true ]; then
-            info "Installing tree-sitter-cli via npm (into ~/.local)..."
-            npm install -g --prefix "$HOME/.local" tree-sitter-cli \
-                && ok "tree-sitter-cli installed to ~/.local/bin" \
-                || warn "tree-sitter-cli install failed — install manually: npm install -g --prefix ~/.local tree-sitter-cli"
-
-            # Ensure ~/.local/bin is in PATH for the rest of this session
-            if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
-                export PATH="$HOME/.local/bin:$PATH"
-            fi
+            install_tree_sitter || warn "tree-sitter-cli install failed — install manually from https://github.com/tree-sitter/tree-sitter/releases"
         else
-            warn "tree-sitter-cli >= $TS_MIN is required. Install with: npm install -g --prefix ~/.local tree-sitter-cli"
+            err "tree-sitter-cli >= $TS_MIN is required. Install from https://github.com/tree-sitter/tree-sitter/releases"
+            exit 1
         fi
     fi
 
     echo ""
+
+    local ts_verified=false
+    if command -v tree-sitter &>/dev/null; then
+        local ts_installed
+        ts_installed=$(tree-sitter --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        if [ -n "$ts_installed" ] && version_gte "$ts_installed" "$TS_MIN"; then
+            ts_verified=true
+        else
+            err "tree-sitter-cli ${ts_installed:-unknown} found but need >= $TS_MIN"
+        fi
+    fi
 
     # Final verification
     local failed=false
@@ -445,6 +624,10 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
             failed=true
         fi
     done
+
+    if [ "$ts_verified" = false ]; then
+        failed=true
+    fi
 
     if [ "$failed" = true ]; then
         err "Some dependencies could not be installed. Please install them manually."
@@ -631,11 +814,11 @@ main() {
     echo "Required dependencies:"
     echo "  • Neovim >= $NVIM_MIN_VERSION"
     echo "  • git, curl"
-    echo "  • node and npm (for Mason LSP servers and tree-sitter-cli)"
+    echo "  • node and npm (for Mason LSP servers)"
     echo "  • fzf (fuzzy finder)"
     echo "  • yq (mikefarah/yq — YAML processing)"
     echo "  • gum (interactive TUI prompts)"
-    echo "  • tree-sitter-cli >= 0.25.0 (installed via npm — nvim-treesitter parser compilation)"
+    echo "  • tree-sitter-cli >= 0.25.0 (installed from GitHub releases)"
     echo ""
 
     if [ "$AUTO_INSTALL" = true ]; then
