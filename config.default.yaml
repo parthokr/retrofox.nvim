@@ -19,6 +19,17 @@ modules:
   copilot: false
   competitive_programming: false
 
+# Tokyo Night and Gruvbox are always available.
+# Enable additional colorscheme families here.
+colorschemes:
+  catppuccin: false
+  kanagawa: false
+  nightfox: false
+  rose-pine: false
+  github-nvim-theme: false
+  everforest: false
+  gruvbox-material: false
+
 editor:
   tab_width: 4
   relative_numbers: true

@@ -706,19 +706,81 @@ run_wizard() {
     done
     ok "Modules configured"
 
+    # ── Colorscheme families ────────────────────────────────
+    echo ""
+    info "Tokyo Night and Gruvbox are always available."
+    info "Select additional colorscheme families to install (space to toggle, enter to confirm):"
+    local cs_families
+    cs_families=$(gum choose --no-limit --height 12 \
+        "catppuccin" "kanagawa" "nightfox" "rose-pine" \
+        "github-nvim-theme" "everforest" "gruvbox-material" \
+    )
+
+    for fam in catppuccin kanagawa nightfox rose-pine github-nvim-theme everforest gruvbox-material; do
+        if echo "$cs_families" | grep -q "^${fam}$"; then
+            yq -i ".colorschemes.\"${fam}\" = true" "$CONFIG_FILE"
+        else
+            yq -i ".colorschemes.\"${fam}\" = false" "$CONFIG_FILE"
+        fi
+    done
+    ok "Colorscheme families configured"
+
     # ── Colorscheme ──────────────────────────────────────────
     echo ""
     info "Choose your colorscheme:"
+
+    local cs_choices
+    cs_choices="tokyonight-night
+tokyonight-storm
+tokyonight-moon"
+
+    if echo "$cs_families" | grep -q "^catppuccin$"; then
+        cs_choices="$cs_choices
+catppuccin-mocha
+catppuccin-macchiato
+catppuccin-frappe"
+    fi
+
+    if echo "$cs_families" | grep -q "^kanagawa$"; then
+        cs_choices="$cs_choices
+kanagawa-wave
+kanagawa-dragon"
+    fi
+
+    if echo "$cs_families" | grep -q "^nightfox$"; then
+        cs_choices="$cs_choices
+nightfox
+duskfox
+carbonfox"
+    fi
+
+    if echo "$cs_families" | grep -q "^rose-pine$"; then
+        cs_choices="$cs_choices
+rose-pine
+rose-pine-moon"
+    fi
+
+    if echo "$cs_families" | grep -q "^github-nvim-theme$"; then
+        cs_choices="$cs_choices
+github_dark
+github_dark_dimmed"
+    fi
+
+    if echo "$cs_families" | grep -q "^everforest$"; then
+        cs_choices="$cs_choices
+everforest"
+    fi
+
+    cs_choices="$cs_choices
+gruvbox"
+
+    if echo "$cs_families" | grep -q "^gruvbox-material$"; then
+        cs_choices="$cs_choices
+gruvbox-material"
+    fi
+
     local colorscheme
-    colorscheme=$(gum choose --height 15 \
-        "tokyonight-night" "tokyonight-storm" "tokyonight-moon" \
-        "catppuccin-mocha" "catppuccin-macchiato" "catppuccin-frappe" \
-        "kanagawa-wave" "kanagawa-dragon" \
-        "nightfox" "duskfox" "carbonfox" \
-        "rose-pine" "rose-pine-moon" \
-        "github_dark" "github_dark_dimmed" \
-        "everforest" "gruvbox" "gruvbox-material" \
-    )
+    colorscheme=$(echo "$cs_choices" | gum choose --height 15)
     yq -i ".appearance.colorscheme = \"$colorscheme\"" "$CONFIG_FILE"
     ok "Colorscheme: $colorscheme"
 

@@ -72,7 +72,7 @@ If you want the script to stop instead of installing missing dependencies:
 4. Clones the repo to `~/.config/nvim`, or updates it in place if that directory is already this repo.
 5. Backs up an existing non-retrofox config to `~/.config/nvim.bak.<timestamp>`.
 6. Creates `~/.local/share/retrofox/config.yaml` from defaults, then runs the wizard.
-7. Asks for modules, colorscheme, tab width, format-on-save, and the dashboard banner.
+7. Asks for modules, colorscheme families, active colorscheme, tab width, format-on-save, and the dashboard banner.
 8. Bootstraps plugins, runs `:TSUpdateSync`, and gives Mason time to install language tools.
 
 If `config.yaml` already exists, the script asks whether you want to reconfigure it. If you say no, it keeps the current file and only runs the banner step.
@@ -122,14 +122,18 @@ modules:
   typescript: true
   json: true
 
+colorschemes:
+  catppuccin: true
+  kanagawa: true
+
 editor:
   tab_width: 4
   relative_numbers: true
   format_on_save: true
 
 appearance:
-  colorscheme: "tokyonight-night"
-  colorscheme_label: "Night"
+  colorscheme: "catppuccin-mocha"
+  colorscheme_label: "Mocha"
 ```
 
 The default file lives in [config.default.yaml](/Users/parthokr/.config/nvim/config.default.yaml).
@@ -196,23 +200,40 @@ The ones worth knowing early:
 
 Module-specific keys stay mostly out of the way until the module is enabled. Go and Java add the most extra surface area. Most of the rest stay pretty quiet.
 
-## themes
+## colorschemes
 
-This setup does spend real effort on the theme side. Not because themes are important in some grand sense, but because a bad theme switcher is annoying and Neovim has enough annoying things already.
+Tokyo Night and Gruvbox are always available. Every other colorscheme family is opt-in — you enable it in `config.yaml` under the `colorschemes` key, and only then will the plugin be loaded and the family appear in `:ThemePicker`.
 
-`ThemePicker` previews variants live, stores the selected label, and keeps the surrounding UI in decent shape when you switch.
+```yaml
+colorschemes:
+  catppuccin: true
+  kanagawa: true
+  nightfox: true
+  rose-pine: true
+  github-nvim-theme: true
+  everforest: true
+  gruvbox-material: true
+```
 
-Theme families included right now:
+Set a family to `true` to pull it in. Families that are absent or `false` are not loaded.
 
-- Tokyo Night
-- Catppuccin
-- Kanagawa
-- Nightfox
-- Rosé Pine
-- GitHub
-- Everforest
-- Gruvbox
-- Gruvbox Material
+The active colorscheme is stored separately under `appearance.colorscheme` and managed by `:ThemePicker`. The hierarchy is: `colorschemes` (which families are installed) → the list of variants inside each family → the single active variant.
+
+Available families:
+
+| Family | Config key | Always on |
+|---|---|---|
+| Tokyo Night | — | yes |
+| Gruvbox | — | yes |
+| Catppuccin | `catppuccin` | no |
+| Kanagawa | `kanagawa` | no |
+| Nightfox | `nightfox` | no |
+| Rosé Pine | `rose-pine` | no |
+| GitHub | `github-nvim-theme` | no |
+| Everforest | `everforest` | no |
+| Gruvbox Material | `gruvbox-material` | no |
+
+`ThemePicker` previews variants live, stores the selected label, and keeps the surrounding UI in decent shape when you switch. It only shows families that are enabled, so you will not see themes you have not opted into.
 
 ## layout
 

@@ -78,10 +78,51 @@ local catalog = {
     { "gruvbox-material", "Light Soft", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "soft" end },
 }
 
--- ── Persistence ─────────────────────────────────────────────
--- Uses config.yaml for persistence via the retrofox module.
+-- ── Filter catalog to enabled families ──────────────────────
+-- Tokyo Night and Gruvbox are always available. Other families
+-- require an explicit colorschemes.<key>: true in config.yaml.
 
 local _rf_ok, _rf = pcall(require, "retrofox")
+
+local always_on_families = { tokyonight = true, gruvbox = true }
+
+local header_to_config_key = {
+    ["Tokyo Night"]      = "tokyonight",
+    ["Catppuccin"]       = "catppuccin",
+    ["Kanagawa"]         = "kanagawa",
+    ["Nightfox"]         = "nightfox",
+    ["Rosé Pine"]        = "rose-pine",
+    ["GitHub"]           = "github-nvim-theme",
+    ["Everforest"]       = "everforest",
+    ["Gruvbox"]          = "gruvbox",
+    ["Gruvbox Material"] = "gruvbox-material",
+}
+
+local function build_active_catalog()
+    local result = {}
+    local family_enabled = true
+    for _, item in ipairs(catalog) do
+        if item.header then
+            local key = header_to_config_key[item.header]
+            if not key or always_on_families[key] then
+                family_enabled = true
+            elseif not _rf_ok then
+                family_enabled = true
+            else
+                family_enabled = _rf.get("colorschemes." .. key) == true
+            end
+        end
+        if family_enabled then
+            table.insert(result, item)
+        end
+    end
+    return result
+end
+
+local active_catalog = build_active_catalog()
+
+-- ── Persistence ─────────────────────────────────────────────
+-- Uses config.yaml for persistence via the retrofox module.
 
 -- Track the confirmed variant label for themes that share a colorscheme name
 -- (e.g. all Everforest variants are "everforest" but differ by label)
@@ -110,13 +151,13 @@ local function save_colorscheme(entry)
 end
 
 local function find_catalog_entry(name, label)
-    for _, item in ipairs(catalog) do
+    for _, item in ipairs(active_catalog) do
         if not item.header and item[1] == name and item[2] == label then
             return item
         end
     end
     -- Fallback: match by name only (for themes without setup hooks)
-    for _, item in ipairs(catalog) do
+    for _, item in ipairs(active_catalog) do
         if not item.header and item[1] == name then
             return item
         end
@@ -169,8 +210,8 @@ local function build_lines(filter)
     local total_themes = 0
     local visible_themes = 0
 
-    -- Count total themes
-    for _, item in ipairs(catalog) do
+    -- Count total available themes
+    for _, item in ipairs(active_catalog) do
         if not item.header then total_themes = total_themes + 1 end
     end
 
@@ -212,7 +253,7 @@ local function build_lines(filter)
         end
     end
 
-    for _, item in ipairs(catalog) do
+    for _, item in ipairs(active_catalog) do
         if item.header then
             flush_group()
             current_header = item.header
