@@ -123,17 +123,16 @@ modules:
   json: true
 
 colorschemes:
-  catppuccin: true
-  kanagawa: true
+  families:
+    - catppuccin
+    - kanagawa
+  active: "catppuccin-mocha"
+  active_label: "Mocha"
 
 editor:
   tab_width: 4
   relative_numbers: true
   format_on_save: true
-
-appearance:
-  colorscheme: "catppuccin-mocha"
-  colorscheme_label: "Mocha"
 ```
 
 The default file lives in [config.default.yaml](/Users/parthokr/.config/nvim/config.default.yaml).
@@ -202,22 +201,19 @@ Module-specific keys stay mostly out of the way until the module is enabled. Go 
 
 ## colorschemes
 
-Tokyo Night and Gruvbox are always available. Every other colorscheme family is opt-in — you enable it in `config.yaml` under the `colorschemes` key, and only then will the plugin be loaded and the family appear in `:ThemePicker`.
+Tokyo Night and Gruvbox are always available. Every other colorscheme family is opt-in — add it to the `families` list and the plugin will be loaded and the family will appear in `:ThemePicker`.
 
 ```yaml
 colorschemes:
-  catppuccin: true
-  kanagawa: true
-  nightfox: true
-  rose-pine: true
-  github-nvim-theme: true
-  everforest: true
-  gruvbox-material: true
+  families:
+    - catppuccin
+    - kanagawa
+    - nightfox
+  active: "catppuccin-mocha"
+  active_label: "Mocha"
 ```
 
-Set a family to `true` to pull it in. Families that are absent or `false` are not loaded.
-
-The active colorscheme is stored separately under `appearance.colorscheme` and managed by `:ThemePicker`. The hierarchy is: `colorschemes` (which families are installed) → the list of variants inside each family → the single active variant.
+The hierarchy: `colorschemes` → `families` (which families are installed) → `active` (the selected variant). Families not in the list are not loaded. `active` and `active_label` are managed by `:ThemePicker` and rarely need manual editing.
 
 Available families:
 

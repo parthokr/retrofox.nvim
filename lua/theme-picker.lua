@@ -99,6 +99,16 @@ local header_to_config_key = {
 }
 
 local function build_active_catalog()
+    local enabled = {}
+    if _rf_ok then
+        local fam_list = _rf.get("colorschemes.families")
+        if type(fam_list) == "table" then
+            for _, f in ipairs(fam_list) do
+                enabled[f] = true
+            end
+        end
+    end
+
     local result = {}
     local family_enabled = true
     for _, item in ipairs(catalog) do
@@ -109,7 +119,7 @@ local function build_active_catalog()
             elseif not _rf_ok then
                 family_enabled = true
             else
-                family_enabled = _rf.get("colorschemes." .. key) == true
+                family_enabled = enabled[key] == true
             end
         end
         if family_enabled then
@@ -130,8 +140,8 @@ local active_label = nil
 
 local function read_persisted()
     if not _rf_ok then return nil end
-    local name = _rf.get("appearance.colorscheme")
-    local label = _rf.get("appearance.colorscheme_label")
+    local name = _rf.get("colorschemes.active")
+    local label = _rf.get("colorschemes.active_label")
     if name then return { name = name, label = label } end
     return nil
 end
@@ -145,8 +155,8 @@ end
 local function save_colorscheme(entry)
     active_label = entry[2]
     if _rf_ok then
-        _rf.set("appearance.colorscheme", entry[1])
-        _rf.set("appearance.colorscheme_label", entry[2])
+        _rf.set("colorschemes.active", entry[1])
+        _rf.set("colorschemes.active_label", entry[2])
     end
 end
 

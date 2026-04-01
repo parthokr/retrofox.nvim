@@ -103,9 +103,9 @@ vim.api.nvim_create_user_command("RetrofoxApply", function()
     end
 
     -- Re-apply colorscheme
-    local appearance = new_cfg.appearance or {}
-    if appearance.colorscheme then
-        pcall(vim.cmd.colorscheme, appearance.colorscheme)
+    local cs = new_cfg.colorschemes or {}
+    if cs.active then
+        pcall(vim.cmd.colorscheme, cs.active)
     end
 
     -- ── Clean up disabled modules ───────────────────────────

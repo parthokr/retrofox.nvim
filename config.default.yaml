@@ -20,22 +20,14 @@ modules:
   competitive_programming: false
 
 # Tokyo Night and Gruvbox are always available.
-# Enable additional colorscheme families here.
+# Add extra families to the list, pick the active variant.
+# active/active_label are managed by :ThemePicker.
 colorschemes:
-  catppuccin: false
-  kanagawa: false
-  nightfox: false
-  rose-pine: false
-  github-nvim-theme: false
-  everforest: false
-  gruvbox-material: false
+  families: []
+  active: "tokyonight-night"
+  active_label: "Night"
 
 editor:
   tab_width: 4
   relative_numbers: true
   format_on_save: true
-
-# Managed by :ThemePicker — rarely edited manually
-appearance:
-  colorscheme: "tokyonight-night"
-  colorscheme_label: "Night"

@@ -716,13 +716,13 @@ run_wizard() {
         "github-nvim-theme" "everforest" "gruvbox-material" \
     )
 
-    for fam in catppuccin kanagawa nightfox rose-pine github-nvim-theme everforest gruvbox-material; do
-        if echo "$cs_families" | grep -q "^${fam}$"; then
-            yq -i ".colorschemes.\"${fam}\" = true" "$CONFIG_FILE"
-        else
-            yq -i ".colorschemes.\"${fam}\" = false" "$CONFIG_FILE"
-        fi
-    done
+    yq -i '.colorschemes.families = []' "$CONFIG_FILE"
+    if [ -n "$cs_families" ]; then
+        while IFS= read -r fam; do
+            [ -z "$fam" ] && continue
+            yq -i ".colorschemes.families += [\"$fam\"]" "$CONFIG_FILE"
+        done <<< "$cs_families"
+    fi
     ok "Colorscheme families configured"
 
     # ── Colorscheme ──────────────────────────────────────────
@@ -781,7 +781,7 @@ gruvbox-material"
 
     local colorscheme
     colorscheme=$(echo "$cs_choices" | gum choose --height 15)
-    yq -i ".appearance.colorscheme = \"$colorscheme\"" "$CONFIG_FILE"
+    yq -i ".colorschemes.active = \"$colorscheme\"" "$CONFIG_FILE"
     ok "Colorscheme: $colorscheme"
 
     # ── Tab width ────────────────────────────────────────────
