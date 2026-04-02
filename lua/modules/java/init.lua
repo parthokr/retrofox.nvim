@@ -7,17 +7,6 @@ end
 
 local os_util = require("retrofox.os")
 
-local ROOT_MARKERS = {
-	"pom.xml",
-	"build.gradle",
-	"build.gradle.kts",
-	"settings.gradle",
-	"settings.gradle.kts",
-	"mvnw",
-	"gradlew",
-	".project",
-	".git",
-}
 
 -- Java-specific markers for project detection (excludes .git — too broad)
 local JAVA_PROJECT_MARKERS = {
@@ -57,25 +46,24 @@ local function get_jdtls_launcher(jdtls_path)
 end
 
 local function resolve_root_dir(bufnr)
-	local root_dir = vim.fs.root(bufnr, ROOT_MARKERS)
+	local root_dir = vim.fs.root(bufnr, JAVA_PROJECT_MARKERS)
 	if root_dir then
 		return root_dir
 	end
 
 	local bufname = vim.api.nvim_buf_get_name(bufnr)
 	if bufname ~= "" then
-		root_dir = vim.fs.root(bufname, ROOT_MARKERS)
+		root_dir = vim.fs.root(bufname, JAVA_PROJECT_MARKERS)
 		if root_dir then
 			return root_dir
 		end
+		
+		-- Fall back to the directory containing the file for truly standalone .java scripts
+		return vim.fs.dirname(bufname)
 	end
 
-	vim.notify(
-		"No Java project root found. Expected one of: " .. table.concat(ROOT_MARKERS, ", "),
-		vim.log.levels.WARN,
-		{ title = "retrofox/java" }
-	)
-	return nil
+	-- Current working directory as an absolute last resort
+	return vim.fn.getcwd()
 end
 
 local function workspace_dir(root_dir)
