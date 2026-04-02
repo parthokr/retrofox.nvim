@@ -8,7 +8,7 @@ if not require("retrofox.module").enabled("go") then return {} end
 vim.lsp.config["gopls"] = {
     cmd = { "gopls" },
     filetypes = { "go" },
-    root_markers = { ".git", "go.mod" },
+    root_markers = { "go.mod", ".git" },
     capabilities = vim.lsp.protocol.make_client_capabilities(),
     settings = {
         gopls = {

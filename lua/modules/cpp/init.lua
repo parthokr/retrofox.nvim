@@ -6,7 +6,7 @@ if not require("retrofox.module").enabled("cpp") then return {} end
 -- ── LSP: clangd ─────────────────────────────────────────────
 
 vim.lsp.config["clangd"] = {
-    cmd = { "clangd", "--fallback-style=llvm" },
+    cmd = vim.g.retrofox_clangd_cmd or { "clangd", "--fallback-style=llvm" },
     root_markers = { ".git", ".clangd", "compile_commands.json" },
     filetypes = { "c", "cc", "cpp" },
     capabilities = {

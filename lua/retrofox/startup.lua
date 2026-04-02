@@ -162,12 +162,6 @@ vim.api.nvim_create_user_command("RetrofoxApply", function()
         end
     end
 
-    -- Clear Lazy module cache so disabled modules don't load stale code
-    local lazy_cache = vim.fn.stdpath("state") .. "/lazy"
-    if vim.fn.isdirectory(lazy_cache) == 1 then
-        vim.fn.delete(lazy_cache, "rf")
-    end
-
     rf.update_checksum()
 
     local msg = "  Config re-applied and checksum updated."

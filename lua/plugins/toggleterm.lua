@@ -16,15 +16,24 @@ return {
             return string.format("#%02x%02x%02x", r, g, b)
         end
 
-        local bg = get_hl("Normal", "bg") or "#1a1b26"
-        local fg = get_hl("Normal", "fg") or "#c0caf5"
-        local accent = get_hl("Function", "fg") or "#7aa2f7"
-        local term_bg = darken(bg, 12)
+        local function set_highlights()
+            local bg = get_hl("Normal", "bg") or "#1a1b26"
+            local fg = get_hl("Normal", "fg") or "#c0caf5"
+            local accent = get_hl("Function", "fg") or "#7aa2f7"
+            local term_bg = darken(bg, 12)
 
-        -- Set terminal-specific highlights
-        vim.api.nvim_set_hl(0, "ToggleTermBorder", { fg = accent, bg = term_bg })
-        vim.api.nvim_set_hl(0, "ToggleTermBg", { bg = term_bg })
-        vim.api.nvim_set_hl(0, "ToggleTermTitle", { fg = bg, bg = accent, bold = true })
+            -- Set terminal-specific highlights
+            vim.api.nvim_set_hl(0, "ToggleTermBorder", { fg = accent, bg = term_bg })
+            vim.api.nvim_set_hl(0, "ToggleTermBg", { bg = term_bg })
+            vim.api.nvim_set_hl(0, "ToggleTermTitle", { fg = bg, bg = accent, bold = true })
+        end
+
+        set_highlights()
+
+        vim.api.nvim_create_autocmd("ColorScheme", {
+            group = vim.api.nvim_create_augroup("ToggleTermThemeSync", { clear = true }),
+            callback = set_highlights,
+        })
 
         require("toggleterm").setup({
             size = function(term)

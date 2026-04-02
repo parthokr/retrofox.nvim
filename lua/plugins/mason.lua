@@ -17,6 +17,7 @@ return {
                 table.insert(servers, "eslint")
             end
             if mod.enabled("go") then table.insert(servers, "gopls") end
+            if mod.enabled("cpp") then table.insert(servers, "clangd") end
             if mod.enabled("rust") then table.insert(servers, "rust_analyzer") end
             if mod.enabled("java") then table.insert(servers, "jdtls") end
             if mod.enabled("docker") then table.insert(servers, "dockerls") end

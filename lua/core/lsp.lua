@@ -1,4 +1,5 @@
 vim.diagnostic.config({
+    virtual_text = false, -- handled by tiny-inline-diagnostic
     underline = true,
     signs = {
         text = {

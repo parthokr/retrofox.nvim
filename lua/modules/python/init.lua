@@ -10,7 +10,6 @@ vim.lsp.config["basedpyright"] = {
     filetypes = { "python" },
     root_markers = {
         ".git",
-        "main.py",
         "pyproject.toml",
         "setup.py",
         "setup.cfg",

@@ -26,11 +26,10 @@ local function compile_and_run_cpp()
         return
     end
 
-    local output = "./a.out"
+    local output = "./" .. vim.fn.expand("%:t:r") -- derive from source filename
     print("⏳ Compiling " .. file .. " with " .. compiler .. "...")
 
-    local compile_cmd = string.format("%s '%s' -o '%s'", compiler, file, output)
-    local compile_result = vim.fn.system(compile_cmd)
+    local compile_result = vim.fn.system({ compiler, file, "-o", output })
 
     if vim.v.shell_error ~= 0 then
         print("❌ Compilation failed:\n" .. compile_result)

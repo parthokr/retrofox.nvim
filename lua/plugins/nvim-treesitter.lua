@@ -132,9 +132,22 @@ return {
             end,
         })
 
-        vim.keymap.set({ "n", "x" }, "<CR>", init_or_expand,
-            { desc = "TS: init/expand incremental selection", silent = true })
-        vim.keymap.set({ "n", "x" }, "<BS>", shrink,
-            { desc = "TS: shrink incremental selection", silent = true })
+        -- Buftype/filetype exclusions where <CR>/<BS> must keep native behavior
+        local excluded_bt = { quickfix = true, help = true, prompt = true, terminal = true }
+        local excluded_ft = { ["neo-tree"] = true, oil = true, alpha = true, lazy = true, mason = true, toggleterm = true }
+
+        vim.keymap.set({ "n", "x" }, "<CR>", function()
+            if excluded_bt[vim.bo.buftype] or excluded_ft[vim.bo.filetype] then
+                return vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+            end
+            init_or_expand()
+        end, { expr = true, desc = "TS: init/expand incremental selection", silent = true })
+
+        vim.keymap.set({ "n", "x" }, "<BS>", function()
+            if excluded_bt[vim.bo.buftype] or excluded_ft[vim.bo.filetype] then
+                return vim.api.nvim_replace_termcodes("<BS>", true, false, true)
+            end
+            shrink()
+        end, { expr = true, desc = "TS: shrink incremental selection", silent = true })
     end,
 }

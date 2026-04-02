@@ -3,12 +3,7 @@ return {
     config = function()
         -- ── Helpers ───────────────────────────────────────────────
 
-        --- Decode percent-encoded chars in a URI (e.g. %3C → <)
-        local function uri_decode(str)
-            return (str:gsub("%%(%x%x)", function(hex)
-                return string.char(tonumber(hex, 16))
-            end))
-        end
+        local utils = require("core.utils")
 
         --- For jdt:// buffers, extract a clean class name from the URI.
         --- Returns nil for normal buffers so the default can be used.
@@ -16,7 +11,7 @@ return {
             if not bufname or not bufname:match("^jdt://") then return nil end
             -- jdt URI after decoding: …/<package>(ClassName.class?=…
             -- The ( separates the package path from the class file name.
-            local decoded = uri_decode(bufname)
+            local decoded = utils.uri_decode(bufname)
             local classfile = decoded:match("%(([^%(%)]+%.class)")
             return classfile or decoded:match("([^/]+)$") or bufname
         end
@@ -262,7 +257,6 @@ return {
         vim.api.nvim_create_autocmd("ColorScheme", {
             group = vim.api.nvim_create_augroup("LualineThemeSync", { clear = true }),
             callback = function()
-                -- Defer briefly so highlight groups are fully applied
                 vim.defer_fn(function()
                     require("lualine").setup(build_lualine_opts())
                 end, 0)

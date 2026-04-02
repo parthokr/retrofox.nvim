@@ -3,8 +3,7 @@ return {
     event = "VeryLazy",
     priority = 1000,
     config = function()
-        vim.diagnostic.config({ virtual_text = false })
-
+        -- virtual_text = false is set centrally in core/lsp.lua
         require("tiny-inline-diagnostic").setup({
             preset = "ghost",
             transparent_bg = false,

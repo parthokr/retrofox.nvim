@@ -80,6 +80,6 @@ return {
         },
         -- fuzzy = { implementation = "lua" },
         fuzzy = { implementation = "prefer_rust_with_warning" },
-        signature = { enabled = true },
+        signature = { enabled = false }, -- Noice handles signature display
     },
 }
