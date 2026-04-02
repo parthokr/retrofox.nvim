@@ -32,17 +32,12 @@ return {
         },
         lsp = {
             override = {
-                ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-                ["vim.lsp.util.stylize_markdown"] = true,
-                ["cmp.entry.get_documentation"] = true,
+                ["vim.lsp.util.convert_input_to_markdown_lines"] = false,
+                ["vim.lsp.util.stylize_markdown"] = false,
+                ["cmp.entry.get_documentation"] = false,
             },
             hover = {
-                enabled = true,
-                silent = true, -- don't show "No information available" message
-                opts = {
-                    -- Constrain hover size for readability
-                    size = { max_width = 80, max_height = 25 },
-                },
+                enabled = false,
             },
             signature = {
                 enabled = true,
