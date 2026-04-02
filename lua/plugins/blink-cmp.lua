@@ -59,23 +59,27 @@ return {
                 enabled = true,
             },
             menu = {
+                border = "rounded",
                 draw = {
                     columns = {
-                        { "label",     "label_description", gap = 2 },
-                        { "kind_icon", "kind",              gap = 2 },
+                        { "kind_icon" },
+                        { "label", "label_description", gap = 1 },
+                        { "kind", "source_name", gap = 1 },
                     },
                     components = {
                         source_name = {
                             text = function(ctx)
                                 if ctx.source_id == 'cmdline' then return end
-                                return ctx.source_name:sub(1, 4)
+                                return "[" .. ctx.source_name:sub(1, 4) .. "]"
                             end,
                         },
                     }
                 }
             },
             documentation = {
-                auto_show = false,
+                auto_show = true,
+                auto_show_delay_ms = 200,
+                window = { border = "rounded" },
             },
         },
         -- fuzzy = { implementation = "lua" },
