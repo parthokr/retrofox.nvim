@@ -34,9 +34,22 @@ return {
             override = {
                 ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
                 ["vim.lsp.util.stylize_markdown"] = true,
+                ["cmp.entry.get_documentation"] = true,
             },
-            hover = { enabled = true },
-            signature = { enabled = true },
+            hover = {
+                enabled = true,
+                silent = true, -- don't show "No information available" message
+                opts = {
+                    -- Constrain hover size for readability
+                    size = { max_width = 80, max_height = 25 },
+                },
+            },
+            signature = {
+                enabled = true,
+                opts = {
+                    size = { max_width = 80, max_height = 15 },
+                },
+            },
             progress = { enabled = true },
         },
         presets = {
@@ -47,6 +60,17 @@ return {
             lsp_doc_border = true,
         },
         views = {
+            hover = {
+                border = { style = "rounded", padding = { 0, 1 } },
+                position = { row = 2, col = 2 },
+                win_options = {
+                    wrap = true,
+                    linebreak = true,
+                    conceallevel = 2,
+                    concealcursor = "niv",
+                },
+                scrollbar = true,
+            },
             cmdline_popup = {
                 position = { row = "40%", col = "50%" },
                 size = { width = 60, height = "auto" },

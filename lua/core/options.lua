@@ -44,6 +44,13 @@ vim.opt.wrap = false
 
 vim.opt.termguicolors = true
 
+-- Hover / floating-doc UX
+vim.opt.conceallevel = 2      -- render markdown bold/italic/links instead of raw syntax
+vim.opt.concealcursor = "nc"  -- keep concealed text hidden in normal & command modes
+vim.opt.pumblend = 10         -- slight transparency on popup-menu
+vim.opt.winblend = 10         -- slight transparency on floating windows
+vim.opt.pumheight = 15        -- cap popup menu height
+
 vim.api.nvim_create_autocmd("TextYankPost", {
     desc = "Highlight when yanking (copying) text",
     group = vim.api.nvim_create_augroup("retrofox-highlight-yank", { clear = true }),
