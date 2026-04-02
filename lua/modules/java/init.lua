@@ -154,10 +154,7 @@ local function setup_jdtls(bufnr)
 				},
 				format = {
 					enabled = true,
-					settings = {
-						url = "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-						profile = "GoogleStyle",
-					},
+					-- Use Eclipse default formatting which respects standard Java 4-space limits
 				},
 				signatureHelp = { enabled = true, description = { enabled = true } },
 				contentProvider = { preferred = "fernflower" },

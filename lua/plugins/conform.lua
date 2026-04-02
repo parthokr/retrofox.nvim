@@ -33,7 +33,8 @@ return {
         end
         if mod.enabled("go") then formatters.go = { "gofmt" } end
         if mod.enabled("python") then formatters.python = { "isort", "ruff_format" } end
-        if mod.enabled("java") then formatters.java = { "google-java-format" } end
+        -- We omit 'google-java-format' so Java falls back to JDTLS default formatting
+        -- which respects 4 spaces / standard editor tab settings instead of forcing 2 spaces.
         if mod.enabled("typescript") then
             formatters.javascript = { "prettier" }
             formatters.typescript = { "prettier" }
