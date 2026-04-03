@@ -74,7 +74,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end
 
         -- Navigation
-        map("n", "K", vim.lsp.buf.hover, "LSP Hover")
+        map("n", "K", function()
+            vim.lsp.buf.hover({ border = "rounded", max_width = 80 })
+        end, "LSP Hover")
         map("n", "<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame symbol")
         map("n", "<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
         map("n", "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
