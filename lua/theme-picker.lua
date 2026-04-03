@@ -446,6 +446,19 @@ function M.open()
     apply_extmarks(buf, lines, entries)
     apply_accent_marks(buf, entries)
 
+    local function preview_current()
+        if not vim.api.nvim_win_is_valid(win) then return end
+        local row = vim.api.nvim_win_get_cursor(win)[1]
+        local entry = entries[row]
+        if entry then
+            if entry[5] then entry[5]() end
+            pcall(vim.cmd.colorscheme, entry[1])
+            setup_highlights()
+            apply_extmarks(buf, lines, entries)
+            apply_accent_marks(buf, entries)
+        end
+    end
+
     -- ── Refresh the picker with a filter ─────────────────────
 
     local function refresh(filter)
@@ -478,6 +491,7 @@ function M.open()
         for i = 1, #entries do
             if entries[i] then
                 pcall(vim.api.nvim_win_set_cursor, win, { i, 0 })
+                preview_current()
                 return
             end
         end
@@ -499,18 +513,7 @@ function M.open()
     vim.api.nvim_create_autocmd("CursorMoved", {
         group = preview_group,
         buffer = buf,
-        callback = function()
-            if not vim.api.nvim_win_is_valid(win) then return end
-            local row = vim.api.nvim_win_get_cursor(win)[1]
-            local entry = entries[row]
-            if entry then
-                if entry[5] then entry[5]() end
-                pcall(vim.cmd.colorscheme, entry[1])
-                setup_highlights()
-                apply_extmarks(buf, lines, entries)
-                apply_accent_marks(buf, entries)
-            end
-        end,
+        callback = preview_current,
     })
 
     -- ── Skip non-selectable lines ────────────────────────────
@@ -521,6 +524,7 @@ function M.open()
         while next_row >= 1 and next_row <= #lines do
             if entries[next_row] then
                 vim.api.nvim_win_set_cursor(win, { next_row, 0 })
+                preview_current()
                 return
             end
             next_row = next_row + direction
@@ -530,6 +534,7 @@ function M.open()
             for i = 1, #lines do
                 if entries[i] then
                     vim.api.nvim_win_set_cursor(win, { i, 0 })
+                    preview_current()
                     return
                 end
             end
@@ -537,6 +542,7 @@ function M.open()
             for i = #lines, 1, -1 do
                 if entries[i] then
                     vim.api.nvim_win_set_cursor(win, { i, 0 })
+                    preview_current()
                     return
                 end
             end
