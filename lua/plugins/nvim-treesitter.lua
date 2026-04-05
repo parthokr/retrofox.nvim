@@ -5,9 +5,8 @@
 -- indentation is provided by the plugin via indentexpr, and parsers are
 -- installed with require('nvim-treesitter').install().
 --
--- Incremental selection (Enter / Backspace in normal/visual mode) is
--- implemented here using vim.treesitter core APIs directly, since the old
--- configs.incremental_selection module no longer exists in main.
+-- Incremental selection uses Neovim 0.12's native treesitter selection API
+-- (vim.treesitter._select). We remap <CR>/<BS> as convenient shortcuts.
 return {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
@@ -54,100 +53,64 @@ return {
             end,
         })
 
-        -- ── Incremental selection via Tree-sitter ─────────────────────────
-        -- <CR>  → init / expand to parent node
-        -- <BS>  → shrink to previous child node
+        -- ── Incremental selection via Neovim 0.12 native API ─────────────
+        -- Neovim 0.12 provides built-in incremental selection in visual mode:
+        --   an  → select parent node (expand)     [vim.treesitter._select.select_parent]
+        --   in  → select child node (shrink)      [vim.treesitter._select.select_child]
+        --   ]n  → select next sibling node        [vim.treesitter._select.select_next]
+        --   [n  → select previous sibling node    [vim.treesitter._select.select_prev]
         --
-        -- We keep a simple stack of TSNode references per buffer.
-        -- vim.treesitter.get_node() does all the heavy lifting.
-
-        local node_stack = {} -- bufnr → { TSNode, TSNode, … }
-
-        --- Visually select a TSNode using nvim_buf_set_mark + normal gv.
-        --- This works reliably across modes because it sets '< and '> marks
-        --- then enters visual mode via `gv`, avoiding cursor-position bugs.
-        local function select_ts_node(node)
-            local sr, sc, er, ec = node:range() -- 0-indexed, ec exclusive
-            local bufnr = vim.api.nvim_get_current_buf()
-            -- Clamp end column: if ec is 0 the node ends at the last column
-            -- of the previous row.
-            local end_row, end_col
-            if ec == 0 then
-                end_row = er - 1
-                -- Get the length of the line to set cursor at the last char
-                local line = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, false)[1] or ""
-                end_col = math.max(0, #line - 1)
-            else
-                end_row = er
-                end_col = ec - 1
-            end
-            -- Set '< and '> marks (1-indexed row, 0-indexed col)
-            vim.api.nvim_buf_set_mark(bufnr, "<", sr + 1, sc, {})
-            vim.api.nvim_buf_set_mark(bufnr, ">", end_row + 1, end_col, {})
-            vim.cmd("normal! gv")
-        end
-
-        local function init_or_expand()
-            local bufnr = vim.api.nvim_get_current_buf()
-            local stack = node_stack[bufnr]
-
-            if not stack or #stack == 0 then
-                -- Init: get the smallest named node at cursor
-                local node = vim.treesitter.get_node({ ignore_injections = false })
-                if not node then return end
-                node_stack[bufnr] = { node }
-                select_ts_node(node)
-            else
-                -- Expand: go to parent of the top node on the stack
-                local current = stack[#stack]
-                local parent = current:parent()
-                if not parent then return end -- already at root
-                table.insert(stack, parent)
-                select_ts_node(parent)
-            end
-        end
-
-        local function shrink()
-            local bufnr = vim.api.nvim_get_current_buf()
-            local stack = node_stack[bufnr]
-
-            if not stack or #stack <= 1 then
-                -- Fully unwound or nothing — exit visual, clear state
-                node_stack[bufnr] = nil
-                local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
-                vim.api.nvim_feedkeys(esc, "nx", false)
-                return
-            end
-
-            table.remove(stack) -- pop current
-            select_ts_node(stack[#stack]) -- re-select previous
-        end
-
-        -- Clear state on BufLeave or when exiting visual mode manually
-        vim.api.nvim_create_autocmd("ModeChanged", {
-            group = vim.api.nvim_create_augroup("RetrofoxTSIncSel", { clear = true }),
-            pattern = "[vV\x16]*:*",  -- leaving any visual mode
-            callback = function(ev)
-                node_stack[ev.buf] = nil
-            end,
-        })
+        -- We map <CR>/<BS> to call these APIs directly (no expr=true needed).
 
         -- Buftype/filetype exclusions where <CR>/<BS> must keep native behavior
         local excluded_bt = { quickfix = true, help = true, prompt = true, terminal = true }
         local excluded_ft = { ["neo-tree"] = true, oil = true, alpha = true, lazy = true, mason = true, toggleterm = true }
 
-        vim.keymap.set({ "n", "x" }, "<CR>", function()
-            if excluded_bt[vim.bo.buftype] or excluded_ft[vim.bo.filetype] then
-                return vim.api.nvim_replace_termcodes("<CR>", true, false, true)
-            end
-            init_or_expand()
-        end, { expr = true, desc = "TS: init/expand incremental selection", silent = true })
+        local function is_excluded()
+            return excluded_bt[vim.bo.buftype] or excluded_ft[vim.bo.filetype]
+        end
 
-        vim.keymap.set({ "n", "x" }, "<BS>", function()
-            if excluded_bt[vim.bo.buftype] or excluded_ft[vim.bo.filetype] then
-                return vim.api.nvim_replace_termcodes("<BS>", true, false, true)
+        -- <CR> in normal mode: start visual + select the node at cursor
+        vim.keymap.set("n", "<CR>", function()
+            if is_excluded() then
+                -- Feed native <CR>
+                local cr = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+                vim.api.nvim_feedkeys(cr, "n", false)
+                return
             end
-            shrink()
-        end, { expr = true, desc = "TS: shrink incremental selection", silent = true })
+            -- Enter visual charwise first, then select the parent node
+            -- This mimics pressing `van` — enter visual and immediately expand to parent
+            local sel_ok, sel = pcall(require, "vim.treesitter._select")
+            if sel_ok and sel.select_parent then
+                vim.cmd("normal! v")
+                sel.select_parent(1)
+            end
+        end, { desc = "TS: init incremental selection", silent = true })
+
+        -- <CR> in visual mode: expand to parent node
+        vim.keymap.set("x", "<CR>", function()
+            if is_excluded() then
+                local cr = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+                vim.api.nvim_feedkeys(cr, "n", false)
+                return
+            end
+            local sel_ok, sel = pcall(require, "vim.treesitter._select")
+            if sel_ok and sel.select_parent then
+                sel.select_parent(1)
+            end
+        end, { desc = "TS: expand incremental selection", silent = true })
+
+        -- <BS> in visual mode: shrink to child node
+        vim.keymap.set("x", "<BS>", function()
+            if is_excluded() then
+                local bs = vim.api.nvim_replace_termcodes("<BS>", true, false, true)
+                vim.api.nvim_feedkeys(bs, "n", false)
+                return
+            end
+            local sel_ok, sel = pcall(require, "vim.treesitter._select")
+            if sel_ok and sel.select_child then
+                sel.select_child(1)
+            end
+        end, { desc = "TS: shrink incremental selection", silent = true })
     end,
 }
