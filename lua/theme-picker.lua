@@ -349,19 +349,29 @@ local function apply_extmarks(buf, lines, entries)
         local entry = entries[i]
         if not entry then
             if line ~= "" then
-                vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerHeader", i - 1, 0, -1)
+                vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
+                    end_col = #line, hl_group = "ThemePickerHeader",
+                })
             end
         else
             local active = vim.g.colors_name or ""
             if entry[1] == active then
-                vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerActive", i - 1, 0, -1)
+                vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
+                    end_col = #line, hl_group = "ThemePickerActive",
+                })
             else
                 local dot_pos = line:find("·")
                 if dot_pos then
-                    vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerItem", i - 1, 0, dot_pos - 1)
-                    vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerDim", i - 1, dot_pos - 1, -1)
+                    vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
+                        end_col = dot_pos - 1, hl_group = "ThemePickerItem",
+                    })
+                    vim.api.nvim_buf_set_extmark(buf, ns, i - 1, dot_pos - 1, {
+                        end_col = #line, hl_group = "ThemePickerDim",
+                    })
                 else
-                    vim.api.nvim_buf_add_highlight(buf, ns, "ThemePickerItem", i - 1, 0, -1)
+                    vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
+                        end_col = #line, hl_group = "ThemePickerItem",
+                    })
                 end
             end
         end
