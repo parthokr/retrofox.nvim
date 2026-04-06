@@ -4,6 +4,7 @@ return {
     lazy = false,
     config = function()
         require("cyberdream").setup({
+            variant = "auto",
             transparent = false,
             italic_comments = true,
             hide_fillchars = false,
