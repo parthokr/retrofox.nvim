@@ -86,6 +86,16 @@ local catalog = {
     { "onedark", "Warm", "󰏘", "#61afef", function() require("onedark").setup({style="warm"}); require("onedark").load() end },
     { "onedark", "Warmer", "󰏘", "#61afef", function() require("onedark").setup({style="warmer"}); require("onedark").load() end },
     { "onedark", "Light", "󰖙", "#61afef", function() require("onedark").setup({style="light"}); require("onedark").load() end },
+
+    -- ── Cyberdream ──
+    { header = "Cyberdream" },
+    { "cyberdream", "Dark", "󰢹", "#5ef1ff", function() vim.o.background = "dark" end },
+    { "cyberdream", "Light", "󰢹", "#16c1d9", function() vim.o.background = "light" end },
+
+    -- ── Oxocarbon ──
+    { header = "Oxocarbon" },
+    { "oxocarbon", "Dark", "󰈑", "#ff7eb6", function() vim.o.background = "dark" end },
+    { "oxocarbon", "Light", "󰈑", "#8058cf", function() vim.o.background = "light" end },
 }
 
 -- ── Filter catalog to enabled families ──────────────────────
@@ -107,6 +117,8 @@ local header_to_config_key = {
     ["Gruvbox"]          = "gruvbox",
     ["Gruvbox Material"] = "gruvbox-material",
     ["OneDark"]          = "onedark",
+    ["Cyberdream"]       = "cyberdream",
+    ["Oxocarbon"]        = "oxocarbon",
 }
 
 local function build_active_catalog()

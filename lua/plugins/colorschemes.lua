@@ -4,7 +4,7 @@ local specs = {}
 local always_on = { tokyonight = true, gruvbox = true }
 
 -- List of colorscheme modules (excludes utils.lua which is a helper, not a plugin spec)
-local themes = { "github-nvim-theme", "gruvbox-material", "kanagawa", "nightfox", "tokyonight", "catppuccin", "gruvbox", "rose-pine", "everforest", "onedark" }
+local themes = { "github-nvim-theme", "gruvbox-material", "kanagawa", "nightfox", "tokyonight", "catppuccin", "gruvbox", "rose-pine", "everforest", "onedark", "cyberdream", "oxocarbon" }
 
 local function is_enabled(theme)
     if always_on[theme] then return true end
