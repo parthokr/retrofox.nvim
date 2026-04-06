@@ -29,7 +29,21 @@ return {
 
         -- ── C/C++/Rust DAP (OS-aware auto-detect) ───────────
         if mod.enabled("cpp") or mod.enabled("rust") then
+            -- Try codelldb first (richer UX), fall back to lldb-dap/lldb-vscode
+            local codelldb_path = vim.fn.exepath("codelldb")
             local adapter_cmd = os_util.cpp_debugger()
+
+            if codelldb_path ~= "" then
+                -- codelldb: speaks DAP natively via stdio
+                dap.adapters.codelldb = {
+                    type = "server",
+                    port = "${port}",
+                    executable = {
+                        command = codelldb_path,
+                        args = { "--port", "${port}" },
+                    },
+                }
+            end
 
             if adapter_cmd then
                 dap.adapters.lldb = {
@@ -37,17 +51,43 @@ return {
                     command = adapter_cmd,
                     name = "lldb",
                 }
+            end
 
+            -- Pick the best available adapter
+            local cpp_adapter = codelldb_path ~= "" and "codelldb" or (adapter_cmd and "lldb" or nil)
+
+            if cpp_adapter then
                 dap.configurations.cpp = {
                     {
                         name = "Launch file",
-                        type = "lldb",
+                        type = cpp_adapter,
                         request = "launch",
                         program = function()
                             return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
                         end,
                         cwd = "${workspaceFolder}",
                         stopOnEntry = false,
+                    },
+                    {
+                        name = "Launch with arguments",
+                        type = cpp_adapter,
+                        request = "launch",
+                        program = function()
+                            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+                        end,
+                        args = function()
+                            local input = vim.fn.input("Arguments: ")
+                            return vim.split(input, " ", { trimempty = true })
+                        end,
+                        cwd = "${workspaceFolder}",
+                        stopOnEntry = false,
+                    },
+                    {
+                        name = "Attach to process",
+                        type = cpp_adapter,
+                        request = "attach",
+                        pid = require("dap.utils").pick_process,
+                        cwd = "${workspaceFolder}",
                     },
                 }
 

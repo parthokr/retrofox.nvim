@@ -41,7 +41,7 @@ return {
                 vim.list_extend(tools, { "ruff", "isort", "debugpy" })
             end
             if mod.enabled("cpp") then
-                table.insert(tools, "clang-format")
+                vim.list_extend(tools, { "clang-format", "codelldb" })
             end
             if mod.enabled("java") then
                 table.insert(tools, "google-java-format")

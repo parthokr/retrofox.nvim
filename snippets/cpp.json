@@ -129,5 +129,220 @@
             "}"
         ],
         "description": "C++ competitive programming template"
+    },
+
+    "main": {
+        "prefix": "main",
+        "body": [
+            "#include <iostream>",
+            "",
+            "int main(int argc, char* argv[]) {",
+            "    $0",
+            "    return 0;",
+            "}"
+        ],
+        "description": "int main() with argc/argv"
+    },
+
+    "class": {
+        "prefix": "class",
+        "body": [
+            "class ${1:ClassName} {",
+            "public:",
+            "    ${1}(${2:/* params */}) ${3:: ${4:/* initializers */} }{",
+            "        $0",
+            "    }",
+            "",
+            "    ~${1}() = default;",
+            "",
+            "    // Delete copy (rule of five — define if needed)",
+            "    ${1}(const ${1}&) = delete;",
+            "    ${1}& operator=(const ${1}&) = delete;",
+            "",
+            "    // Default move",
+            "    ${1}(${1}&&) noexcept = default;",
+            "    ${1}& operator=(${1}&&) noexcept = default;",
+            "",
+            "private:",
+            "    ${5:// members}",
+            "};"
+        ],
+        "description": "Class with rule-of-five stubs"
+    },
+
+    "struct": {
+        "prefix": "struct",
+        "body": [
+            "struct ${1:Name} {",
+            "    ${2:int value};",
+            "",
+            "    ${1}(${3:int v}) : ${4:value(v)} {}",
+            "    $0",
+            "};"
+        ],
+        "description": "Struct with constructor"
+    },
+
+    "forr": {
+        "prefix": "forr",
+        "body": [
+            "for (${1:auto}& ${2:elem} : ${3:container}) {",
+            "    $0",
+            "}"
+        ],
+        "description": "Range-based for loop"
+    },
+
+    "fori": {
+        "prefix": "fori",
+        "body": [
+            "for (${1:size_t} ${2:i} = ${3:0}; ${2} < ${4:n}; ++${2}) {",
+            "    $0",
+            "}"
+        ],
+        "description": "Index-based for loop"
+    },
+
+    "unique_ptr": {
+        "prefix": "uniq",
+        "body": "auto ${1:ptr} = std::make_unique<${2:Type}>(${3:args});$0",
+        "description": "std::make_unique"
+    },
+
+    "shared_ptr": {
+        "prefix": "shr",
+        "body": "auto ${1:ptr} = std::make_shared<${2:Type}>(${3:args});$0",
+        "description": "std::make_shared"
+    },
+
+    "lambda": {
+        "prefix": "lam",
+        "body": [
+            "[${1:&}](${2:auto ${3:x}}) ${4:-> ${5:void} }{",
+            "    $0",
+            "}"
+        ],
+        "description": "Lambda expression"
+    },
+
+    "pragma_once": {
+        "prefix": "guard",
+        "body": [
+            "#pragma once",
+            "",
+            "$0"
+        ],
+        "description": "#pragma once header guard"
+    },
+
+    "include": {
+        "prefix": "inc",
+        "body": "#include <${1:header}>$0",
+        "description": "#include <header>"
+    },
+
+    "include_local": {
+        "prefix": "incl",
+        "body": "#include \"${1:header.h}\"$0",
+        "description": "#include \"local header\""
+    },
+
+    "cout": {
+        "prefix": "cout",
+        "body": "std::cout << ${1:\"\"} << ${2:'\\n'};$0",
+        "description": "std::cout with newline"
+    },
+
+    "cin": {
+        "prefix": "cin",
+        "body": "std::cin >> ${1:var};$0",
+        "description": "std::cin"
+    },
+
+    "enum_class": {
+        "prefix": "enumc",
+        "body": [
+            "enum class ${1:Name} {",
+            "    ${2:Value1},",
+            "    ${3:Value2},",
+            "    $0",
+            "};"
+        ],
+        "description": "Scoped enum class"
+    },
+
+    "try_catch": {
+        "prefix": "try",
+        "body": [
+            "try {",
+            "    $0",
+            "} catch (const ${1:std::exception}& ${2:e}) {",
+            "    ${3:std::cerr << e.what() << '\\n';}",
+            "}"
+        ],
+        "description": "Try-catch block"
+    },
+
+    "namespace": {
+        "prefix": "ns",
+        "body": [
+            "namespace ${1:name} {",
+            "",
+            "$0",
+            "",
+            "} // namespace ${1}"
+        ],
+        "description": "Namespace block"
+    },
+
+    "template_function": {
+        "prefix": "tfn",
+        "body": [
+            "template <typename ${1:T}>",
+            "${2:void} ${3:func}(${4:const ${1}& arg}) {",
+            "    $0",
+            "}"
+        ],
+        "description": "Template function"
+    },
+
+    "constexpr": {
+        "prefix": "cexpr",
+        "body": "constexpr ${1:auto} ${2:name} = ${3:value};$0",
+        "description": "constexpr variable"
+    },
+
+    "vector_init": {
+        "prefix": "vec",
+        "body": "std::vector<${1:int}> ${2:v}${3:(${4:n}, ${5:0})};$0",
+        "description": "std::vector with optional init"
+    },
+
+    "map_init": {
+        "prefix": "umap",
+        "body": "std::unordered_map<${1:std::string}, ${2:int}> ${3:m};$0",
+        "description": "std::unordered_map"
+    },
+
+    "if_constexpr": {
+        "prefix": "ifc",
+        "body": [
+            "if constexpr (${1:condition}) {",
+            "    $0",
+            "}"
+        ],
+        "description": "if constexpr (C++17)"
+    },
+
+    "structured_binding": {
+        "prefix": "autob",
+        "body": "auto [${1:a}, ${2:b}] = ${3:expr};$0",
+        "description": "Structured binding (C++17)"
+    },
+
+    "static_assert": {
+        "prefix": "sa",
+        "body": "static_assert(${1:condition}, \"${2:message}\");$0",
+        "description": "static_assert"
     }
 }

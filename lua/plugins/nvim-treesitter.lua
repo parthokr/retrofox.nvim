@@ -24,10 +24,10 @@ return {
         -- Install parsers for all languages we care about.
         -- install() is a no-op for parsers that are already up-to-date.
         ts.install({
-            "c", "lua", "vim", "vimdoc", "query",
+            "c", "cpp", "lua", "vim", "vimdoc", "query",
             "javascript", "html", "python", "markdown", "markdown_inline",
             "go", "rust", "java", "typescript", "tsx", "json", "yaml",
-            "bash", "dockerfile", "css", "toml", "groovy", "kotlin",
+            "bash", "dockerfile", "css", "toml", "groovy", "kotlin", "cmake",
         })
     end,
 
