@@ -20,6 +20,12 @@ return {
         "folke/lazydev.nvim",
     },
     opts = {
+        enabled = function()
+            -- Disable completion in our custom theme-picker search box
+            return vim.bo.filetype ~= "theme-picker-search"
+                and vim.bo.buftype ~= "prompt"
+                and vim.b.completion ~= false
+        end,
         snippets = { preset = "luasnip" },
         sources = {
             default = { "lsp", "path", "snippets", "buffer", "lazydev" },

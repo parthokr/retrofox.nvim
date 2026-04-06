@@ -651,6 +651,10 @@ function M.open()
         search_buf = vim.api.nvim_create_buf(false, true)
         vim.bo[search_buf].bufhidden = "wipe"
         vim.bo[search_buf].buftype = "nofile"
+        vim.bo[search_buf].filetype = "theme-picker-search"
+        -- Disable completion plugins from attaching to this search box
+        vim.b[search_buf].completion = false
+        vim.b[search_buf].blink_cmp_disable = true
 
         if current_filter and current_filter ~= "" then
             vim.api.nvim_buf_set_lines(search_buf, 0, -1, false, { current_filter })
