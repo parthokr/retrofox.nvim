@@ -24,6 +24,7 @@ editor:
   relative_numbers: true
   format_on_save: true
   # Tokyo Night and Gruvbox are always available.
+  # Available families: catppuccin, kanagawa, nightfox, rose-pine, github-nvim-theme, everforest, gruvbox-material, onedark
   # Add extra families to the list. active is colorscheme:variant.
   colorschemes:
     families: []

@@ -76,6 +76,16 @@ local catalog = {
     { "gruvbox-material", "Light Hard", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "hard" end },
     { "gruvbox-material", "Light Medium", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "medium" end },
     { "gruvbox-material", "Light Soft", "󰊠", "#a96b2c", function() vim.o.background = "light"; vim.g.gruvbox_material_background = "soft" end },
+
+    -- ── OneDark ──
+    { header = "OneDark" },
+    { "onedark", "Dark", "󰏘", "#61afef", function() require("onedark").setup({style="dark"}); require("onedark").load() end },
+    { "onedark", "Darker", "󰏘", "#61afef", function() require("onedark").setup({style="darker"}); require("onedark").load() end },
+    { "onedark", "Cool", "󰏘", "#61afef", function() require("onedark").setup({style="cool"}); require("onedark").load() end },
+    { "onedark", "Deep", "󰏘", "#61afef", function() require("onedark").setup({style="deep"}); require("onedark").load() end },
+    { "onedark", "Warm", "󰏘", "#61afef", function() require("onedark").setup({style="warm"}); require("onedark").load() end },
+    { "onedark", "Warmer", "󰏘", "#61afef", function() require("onedark").setup({style="warmer"}); require("onedark").load() end },
+    { "onedark", "Light", "󰖙", "#61afef", function() require("onedark").setup({style="light"}); require("onedark").load() end },
 }
 
 -- ── Filter catalog to enabled families ──────────────────────
@@ -96,6 +106,7 @@ local header_to_config_key = {
     ["Everforest"]       = "everforest",
     ["Gruvbox"]          = "gruvbox",
     ["Gruvbox Material"] = "gruvbox-material",
+    ["OneDark"]          = "onedark",
 }
 
 local function build_active_catalog()
