@@ -272,7 +272,7 @@ local function build_lines(filter)
             lines[idx] = ""
             entries[idx] = false
             idx = idx + 1
-            lines[idx] = "   " .. current_header
+            lines[idx] = "  " .. string.rep("─", 2) .. "  " .. string.upper(current_header) .. "  " .. string.rep("─", 20)
             entries[idx] = false
             for _, vi in ipairs(visible) do
                 local cs_name, label, icon = vi[1], vi[2], vi[3]
@@ -363,6 +363,7 @@ local function setup_highlights()
     vim.api.nvim_set_hl(0, "ThemePickerSearch", { fg = special_fg, bold = true })
     vim.api.nvim_set_hl(0, "ThemePickerSearchBorder", { fg = func_fg })
     vim.api.nvim_set_hl(0, "ThemePickerSearchPrompt", { fg = func_fg, bold = true })
+    vim.api.nvim_set_hl(0, "ThemePickerHiddenCursor", { blend = 100, reverse = false })
 end
 
 local function apply_extmarks(buf, lines, entries)
@@ -473,7 +474,7 @@ function M.open()
 
     vim.wo[win].cursorline = true
     vim.wo[win].winblend = 8
-    vim.wo[win].winhighlight = "NormalFloat:Normal,FloatBorder:ThemePickerBorder,FloatTitle:ThemePickerTitle,FloatFooter:ThemePickerDim,CursorLine:ThemePickerCursorLine"
+    vim.wo[win].winhighlight = "NormalFloat:Normal,FloatBorder:ThemePickerBorder,FloatTitle:ThemePickerTitle,FloatFooter:ThemePickerDim,CursorLine:ThemePickerCursorLine,Cursor:ThemePickerHiddenCursor"
 
     -- Apply highlights
     apply_extmarks(buf, lines, entries)
@@ -543,10 +544,23 @@ function M.open()
 
     local preview_group = vim.api.nvim_create_augroup("ThemePickerPreview", { clear = true })
 
+    local preview_timer = nil
+
     vim.api.nvim_create_autocmd("CursorMoved", {
         group = preview_group,
         buffer = buf,
-        callback = preview_current,
+        callback = function()
+            if preview_timer then
+                preview_timer:stop()
+                preview_timer:close()
+            end
+            preview_timer = vim.loop.new_timer()
+            preview_timer:start(50, 0, vim.schedule_wrap(function()
+                if vim.api.nvim_win_is_valid(win) then
+                    preview_current()
+                end
+            end))
+        end,
     })
 
     -- ── Skip non-selectable lines ────────────────────────────
