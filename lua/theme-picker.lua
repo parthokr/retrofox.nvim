@@ -42,9 +42,9 @@ local catalog = {
 
     -- ── Rosé Pine ──
     { header = "Rosé Pine" },
-    { "rose-pine", "Main", "󰧱", "#eb6f92" },
-    { "rose-pine-moon", "Moon", "󰧱", "#ea9a97" },
-    { "rose-pine-dawn", "Dawn", "󰧱", "#d7827e" },
+    { "rose-pine", "Main", "󰧱", "#eb6f92", function() require("rose-pine").setup({variant="main"}); vim.o.background="dark" end },
+    { "rose-pine", "Moon", "󰧱", "#ea9a97", function() require("rose-pine").setup({variant="moon"}); vim.o.background="dark" end },
+    { "rose-pine", "Dawn", "󰧱", "#d7827e", function() require("rose-pine").setup({variant="dawn"}); vim.o.background="light" end },
 
     -- ── GitHub ──
     { header = "GitHub" },
@@ -89,8 +89,8 @@ local catalog = {
 
     -- ── Cyberdream ──
     { header = "Cyberdream" },
-    { "cyberdream", "Dark", "󰢹", "#5ef1ff", function() vim.o.background = "dark" end },
-    { "cyberdream", "Light", "󰢹", "#16c1d9", function() vim.o.background = "light" end },
+    { "cyberdream", "Dark", "󰢹", "#5ef1ff", function() require("cyberdream").setup({variant="dark"}); vim.o.background="dark" end },
+    { "cyberdream", "Light", "󰢹", "#16c1d9", function() require("cyberdream").setup({variant="light"}); vim.o.background="light" end },
 
     -- ── Oxocarbon ──
     { header = "Oxocarbon" },
