@@ -26,9 +26,9 @@ local catalog = {
 
     -- ── Kanagawa ──
     { header = "Kanagawa" },
-    { "kanagawa-wave", "Wave", "󰺣", "#7e9cd8" },
-    { "kanagawa-dragon", "Dragon", "󰺣", "#c4b28a" },
-    { "kanagawa-lotus", "Lotus", "󰺣", "#c84053" },
+    { "kanagawa", "Wave", "󰺣", "#7e9cd8", function() local k = require("kanagawa"); k.config.theme = "wave"; k.config.background.dark = "wave"; vim.o.background = "dark" end },
+    { "kanagawa", "Dragon", "󰺣", "#c4b28a", function() local k = require("kanagawa"); k.config.theme = "dragon"; k.config.background.dark = "dragon"; vim.o.background = "dark" end },
+    { "kanagawa", "Lotus", "󰺣", "#c84053", function() local k = require("kanagawa"); k.config.theme = "lotus"; k.config.background.light = "lotus"; vim.o.background = "light" end },
 
     -- ── Nightfox ──
     { header = "Nightfox" },
@@ -379,7 +379,9 @@ local function apply_extmarks(buf, lines, entries)
             end
         else
             local active = vim.g.colors_name or ""
-            if entry[1] == active then
+            local is_active_entry = (entry[1] == active)
+                and (not entry[5] or active_label == entry[2])
+            if is_active_entry then
                 vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
                     end_col = #line, hl_group = "ThemePickerActive",
                 })
