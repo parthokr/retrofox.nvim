@@ -1,8 +1,5 @@
 return {
     "stevearc/oil.nvim",
-    ---@module 'oil'
-    ---@type oil.SetupOpts
-    lazy = false,
     config = function()
         require("oil").setup({
             -- Show icon, permissions, and size columns for rich context
