@@ -1,62 +1,43 @@
 return {
     {
         "williamboman/mason.nvim",
-        dependencies = {
-            "williamboman/mason-lspconfig.nvim",
-        },
         config = function()
             local mod = require("retrofox.module")
 
-            -- Core servers (always installed)
-            local servers = { "lua_ls", "bashls" }
-
-            -- Auto-add servers based on enabled modules
-            if mod.enabled("python") then table.insert(servers, "basedpyright") end
-            if mod.enabled("typescript") then
-                table.insert(servers, "ts_ls")
-                table.insert(servers, "eslint")
-            end
-            if mod.enabled("go") then table.insert(servers, "gopls") end
-            if mod.enabled("cpp") then table.insert(servers, "clangd") end
-            if mod.enabled("rust") then table.insert(servers, "rust_analyzer") end
-            if mod.enabled("java") then table.insert(servers, "jdtls") end
-            if mod.enabled("docker") then table.insert(servers, "dockerls") end
-            if mod.enabled("json") then table.insert(servers, "jsonls") end
-
             require("mason").setup()
-            require("mason-lspconfig").setup({
-                ensure_installed = servers,
-                automatic_enable = {
-                    exclude = { "jdtls", "gradle_ls" },
-                },
-                automatic_installation = true,
-            })
 
-            -- ── Non-LSP tools (formatters, linters, DAP) ────────
-            -- Mason-lspconfig only handles LSP servers.
-            -- Formatters, linters, and DAP adapters must be installed separately.
-            local tools = { "stylua" } -- always useful
+            -- ── All tools: LSP servers + formatters + linters + DAP ──
+            -- Mason registry handles everything uniformly.
+            -- Your modules already call vim.lsp.config[] + vim.lsp.enable()
+            -- so we only need Mason to *install* the binaries.
+            local tools = { "lua-language-server", "bash-language-server", "stylua" }
 
             if mod.enabled("python") then
-                vim.list_extend(tools, { "ruff", "isort", "debugpy" })
-            end
-            if mod.enabled("cpp") then
-                vim.list_extend(tools, { "clang-format", "codelldb" })
-            end
-            if mod.enabled("java") then
-                table.insert(tools, "google-java-format")
+                vim.list_extend(tools, { "basedpyright", "ruff", "isort", "debugpy" })
             end
             if mod.enabled("typescript") then
-                table.insert(tools, "prettier")
+                vim.list_extend(tools, { "typescript-language-server", "eslint-lsp", "prettier" })
+            end
+            if mod.enabled("go") then
+                table.insert(tools, "gopls")
+            end
+            if mod.enabled("cpp") then
+                vim.list_extend(tools, { "clangd", "clang-format", "codelldb" })
+            end
+            if mod.enabled("rust") then
+                table.insert(tools, "rust-analyzer")
+            end
+            if mod.enabled("java") then
+                vim.list_extend(tools, { "jdtls", "google-java-format" })
+            end
+            if mod.enabled("docker") then
+                vim.list_extend(tools, { "dockerfile-language-server", "hadolint" })
             end
             if mod.enabled("json") then
-                vim.list_extend(tools, { "jsonlint", "prettier" })
+                vim.list_extend(tools, { "json-lsp", "jsonlint", "prettier" })
             end
             if mod.enabled("markdown") then
                 vim.list_extend(tools, { "markdownlint-cli2", "prettier" })
-            end
-            if mod.enabled("docker") then
-                table.insert(tools, "hadolint")
             end
 
             -- Deduplicate
@@ -69,7 +50,7 @@ return {
                 end
             end
 
-            -- Deferred install of non-LSP tools
+            -- Deferred install of all tools
             vim.defer_fn(function()
                 local registry = require("mason-registry")
                 registry.refresh(function()
