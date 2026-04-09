@@ -18,9 +18,13 @@ local M = {}
 --- @return boolean
 function M.enabled(name)
     local ok, rf = pcall(require, "retrofox")
-    if not ok then return true end -- framework unavailable → enable everything
+    if not ok then
+        return true
+    end -- framework unavailable → enable everything
     local val = rf.get("modules." .. name)
-    if val == nil then return true end -- not specified → enabled
+    if val == nil then
+        return true
+    end -- not specified → enabled
     return val ~= false
 end
 

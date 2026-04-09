@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: JSON (jsonls)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("json") then return {} end
+if not require("retrofox.module").enabled("json") then
+    return {}
+end
 
 -- ── LSP: jsonls ────────────────────────────────────────────
 

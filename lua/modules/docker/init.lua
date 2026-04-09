@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Docker (dockerls LSP)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("docker") then return {} end
+if not require("retrofox.module").enabled("docker") then
+    return {}
+end
 
 -- ── LSP: dockerls ───────────────────────────────────────────
 

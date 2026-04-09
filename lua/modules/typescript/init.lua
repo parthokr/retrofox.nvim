@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: TypeScript / JavaScript (ts_ls + eslint)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("typescript") then return {} end
+if not require("retrofox.module").enabled("typescript") then
+    return {}
+end
 
 -- ── LSP: ts_ls ──────────────────────────────────────────────
 
@@ -33,23 +35,37 @@ vim.lsp.enable("ts_ls")
 -- ── LSP: eslint ─────────────────────────────────────────────
 
 local ESLINT_ROOT_MARKERS = {
-    ".eslintrc", ".eslintrc.cjs", ".eslintrc.js", ".eslintrc.json",
-    ".eslintrc.yaml", ".eslintrc.yml",
-    "eslint.config.cjs", "eslint.config.cts", "eslint.config.js",
-    "eslint.config.mjs", "eslint.config.mts", "eslint.config.ts",
+    ".eslintrc",
+    ".eslintrc.cjs",
+    ".eslintrc.js",
+    ".eslintrc.json",
+    ".eslintrc.yaml",
+    ".eslintrc.yml",
+    "eslint.config.cjs",
+    "eslint.config.cts",
+    "eslint.config.js",
+    "eslint.config.mjs",
+    "eslint.config.mts",
+    "eslint.config.ts",
 }
 
 vim.lsp.config["eslint"] = {
     cmd = { "vscode-eslint-language-server", "--stdio" },
     filetypes = {
-        "javascript", "javascript.jsx", "javascriptreact",
-        "typescript", "typescript.tsx", "typescriptreact",
+        "javascript",
+        "javascript.jsx",
+        "javascriptreact",
+        "typescript",
+        "typescript.tsx",
+        "typescriptreact",
     },
     root_markers = ESLINT_ROOT_MARKERS,
     root_dir = function(bufnr, on_dir)
         local filename = vim.api.nvim_buf_get_name(bufnr)
         local root_dir = vim.fs.dirname(vim.fs.find(ESLINT_ROOT_MARKERS, { path = filename, upward = true })[1])
-        if not root_dir then return nil end
+        if not root_dir then
+            return nil
+        end
         on_dir(root_dir)
     end,
     settings = {
@@ -73,7 +89,9 @@ vim.lsp.config["eslint"] = {
     },
     on_init = function(client, _)
         local new_root_dir = client.config.root_dir
-        if not new_root_dir then return end
+        if not new_root_dir then
+            return
+        end
 
         client.config.settings.workspaceFolder = {
             uri = new_root_dir,
@@ -81,7 +99,8 @@ vim.lsp.config["eslint"] = {
         }
 
         -- Support flat config
-        if vim.fn.filereadable(new_root_dir .. "/eslint.config.js") == 1
+        if
+            vim.fn.filereadable(new_root_dir .. "/eslint.config.js") == 1
             or vim.fn.filereadable(new_root_dir .. "/eslint.config.mjs") == 1
             or vim.fn.filereadable(new_root_dir .. "/eslint.config.cjs") == 1
             or vim.fn.filereadable(new_root_dir .. "/eslint.config.ts") == 1
@@ -102,11 +121,15 @@ vim.lsp.config["eslint"] = {
     end,
     handlers = {
         ["eslint/openDoc"] = function(_, result)
-            if result then vim.ui.open(result.url) end
+            if result then
+                vim.ui.open(result.url)
+            end
             return {}
         end,
         ["eslint/confirmESLintExecution"] = function(_, result)
-            if not result then return end
+            if not result then
+                return
+            end
             return 4 -- approved
         end,
         ["eslint/probeFailed"] = function()

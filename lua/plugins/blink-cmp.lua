@@ -22,9 +22,7 @@ return {
     opts = {
         enabled = function()
             -- Disable completion in our custom theme-picker search box
-            return vim.bo.filetype ~= "theme-picker-search"
-                and vim.bo.buftype ~= "prompt"
-                and vim.b.completion ~= false
+            return vim.bo.filetype ~= "theme-picker-search" and vim.bo.buftype ~= "prompt" and vim.b.completion ~= false
         end,
         snippets = { preset = "luasnip" },
         sources = {
@@ -39,7 +37,8 @@ return {
             ["<Tab>"] = {
                 -- If copilot suggestion visible and blink menu NOT open → accept copilot
                 function(cmp)
-                    if vim.fn.exists("*copilot#GetDisplayedSuggestion") == 1
+                    if
+                        vim.fn.exists("*copilot#GetDisplayedSuggestion") == 1
                         and vim.fn["copilot#GetDisplayedSuggestion"]().text ~= ""
                         and not cmp.is_visible()
                     then
@@ -75,12 +74,14 @@ return {
                     components = {
                         source_name = {
                             text = function(ctx)
-                                if ctx.source_id == 'cmdline' then return end
+                                if ctx.source_id == "cmdline" then
+                                    return
+                                end
                                 return "[" .. ctx.source_name:sub(1, 4) .. "]"
                             end,
                         },
-                    }
-                }
+                    },
+                },
             },
             documentation = {
                 auto_show = true,

@@ -9,8 +9,12 @@ end, { desc = "[T]oggle [T]ransparency" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Go to previous diagnostic" })
-vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "Go to next diagnostic" })
+vim.keymap.set("n", "[d", function()
+    vim.diagnostic.jump({ count = -1 })
+end, { desc = "Go to previous diagnostic" })
+vim.keymap.set("n", "]d", function()
+    vim.diagnostic.jump({ count = 1 })
+end, { desc = "Go to next diagnostic" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 vim.keymap.set("n", "<leader>de", vim.diagnostic.open_float, { desc = "Open [D]iagnostic [E]rror float" })
 
@@ -31,7 +35,6 @@ vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
 vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
-
 
 -- Delete line without affecting register
 vim.keymap.set("n", "dD", '"_dd', { desc = "Delete line without affecting register" })
@@ -62,8 +65,6 @@ vim.keymap.set("n", "<leader>fp", function()
     vim.fn.setreg("+", path)
     vim.notify(path, vim.log.levels.INFO, { title = "File Path" })
 end, { desc = "Copy file path" })
-
-
 
 -- Better indent in visual mode (stay in visual)
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left" })

@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Copilot
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("copilot") then return {} end
+if not require("retrofox.module").enabled("copilot") then
+    return {}
+end
 
 return {
     "github/copilot.vim",

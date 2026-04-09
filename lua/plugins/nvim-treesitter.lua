@@ -14,7 +14,9 @@ return {
     build = ":TSUpdate",
     config = function()
         local ok, ts = pcall(require, "nvim-treesitter")
-        if not ok then return end
+        if not ok then
+            return
+        end
 
         -- Install dir — keep in the standard nvim data path
         ts.setup({
@@ -24,10 +26,31 @@ return {
         -- Install parsers for all languages we care about.
         -- install() is a no-op for parsers that are already up-to-date.
         ts.install({
-            "c", "cpp", "lua", "vim", "vimdoc", "query",
-            "javascript", "html", "python", "markdown", "markdown_inline",
-            "go", "rust", "java", "typescript", "tsx", "json", "yaml",
-            "bash", "dockerfile", "css", "toml", "groovy", "kotlin", "cmake",
+            "c",
+            "cpp",
+            "lua",
+            "vim",
+            "vimdoc",
+            "query",
+            "javascript",
+            "html",
+            "python",
+            "markdown",
+            "markdown_inline",
+            "go",
+            "rust",
+            "java",
+            "typescript",
+            "tsx",
+            "json",
+            "yaml",
+            "bash",
+            "dockerfile",
+            "css",
+            "toml",
+            "groovy",
+            "kotlin",
+            "cmake",
         })
     end,
 
@@ -48,7 +71,9 @@ return {
             group = vim.api.nvim_create_augroup("RetrofoxTreesitterIndent", { clear = true }),
             callback = function()
                 local ok, _ = pcall(require, "nvim-treesitter")
-                if not ok then return end
+                if not ok then
+                    return
+                end
                 vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
             end,
         })
@@ -64,7 +89,8 @@ return {
 
         -- Buftype/filetype exclusions where <CR>/<BS> must keep native behavior
         local excluded_bt = { quickfix = true, help = true, prompt = true, terminal = true }
-        local excluded_ft = { ["neo-tree"] = true, oil = true, alpha = true, lazy = true, mason = true, toggleterm = true }
+        local excluded_ft =
+            { ["neo-tree"] = true, oil = true, alpha = true, lazy = true, mason = true, toggleterm = true }
 
         local function is_excluded()
             return excluded_bt[vim.bo.buftype] or excluded_ft[vim.bo.filetype]

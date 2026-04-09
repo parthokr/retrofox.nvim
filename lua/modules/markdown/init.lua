@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Markdown (render-markdown.nvim)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("markdown") then return {} end
+if not require("retrofox.module").enabled("markdown") then
+    return {}
+end
 
 return {
     "MeanderingProgrammer/render-markdown.nvim",

@@ -12,7 +12,9 @@ return {
     },
     config = function()
         local ok, tso = pcall(require, "nvim-treesitter-textobjects")
-        if not ok then return end
+        if not ok then
+            return
+        end
 
         -- Global options (select behaviour, move jump-list, etc.)
         tso.setup({
@@ -20,8 +22,8 @@ return {
                 lookahead = true,
                 selection_modes = {
                     ["@parameter.outer"] = "v",
-                    ["@function.outer"]  = "V",
-                    ["@class.outer"]     = "<c-v>",
+                    ["@function.outer"] = "V",
+                    ["@class.outer"] = "<c-v>",
                 },
                 include_surrounding_whitespace = true,
             },
@@ -30,12 +32,12 @@ return {
         -- ── Select keymaps ────────────────────────────────────────
         local sel = require("nvim-treesitter-textobjects.select")
         local select_map = {
-            ["af"] = { "@function.outer",  "textobjects" },
-            ["if"] = { "@function.inner",  "textobjects" },
-            ["ac"] = { "@class.outer",     "textobjects" },
-            ["ic"] = { "@class.inner",     "textobjects" },
-            ["ao"] = { "@comment.outer",   "textobjects" },
-            ["as"] = { "@local.scope",     "locals"      },
+            ["af"] = { "@function.outer", "textobjects" },
+            ["if"] = { "@function.inner", "textobjects" },
+            ["ac"] = { "@class.outer", "textobjects" },
+            ["ic"] = { "@class.inner", "textobjects" },
+            ["ao"] = { "@comment.outer", "textobjects" },
+            ["as"] = { "@local.scope", "locals" },
         }
         for key, args in pairs(select_map) do
             vim.keymap.set({ "x", "o" }, key, function()

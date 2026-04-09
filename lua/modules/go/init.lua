@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Go (vim-go + gopls)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("go") then return {} end
+if not require("retrofox.module").enabled("go") then
+    return {}
+end
 
 -- ── LSP: gopls ──────────────────────────────────────────────
 
@@ -64,20 +66,20 @@ return {
         vim.g.go_highlight_generate_tags = 1
     end,
     keys = {
-        { "<leader>gor", "<cmd>GoRun<cr>",          ft = "go", desc = "[Go] [R]un" },
-        { "<leader>got", "<cmd>GoTest<cr>",         ft = "go", desc = "[Go] [T]est" },
-        { "<leader>goT", "<cmd>GoTestFunc<cr>",     ft = "go", desc = "[Go] [T]est function" },
-        { "<leader>gob", "<cmd>GoBuild<cr>",        ft = "go", desc = "[Go] [B]uild" },
+        { "<leader>gor", "<cmd>GoRun<cr>", ft = "go", desc = "[Go] [R]un" },
+        { "<leader>got", "<cmd>GoTest<cr>", ft = "go", desc = "[Go] [T]est" },
+        { "<leader>goT", "<cmd>GoTestFunc<cr>", ft = "go", desc = "[Go] [T]est function" },
+        { "<leader>gob", "<cmd>GoBuild<cr>", ft = "go", desc = "[Go] [B]uild" },
         { "<leader>goc", "<cmd>GoCoverageToggle<cr>", ft = "go", desc = "[Go] [C]overage toggle" },
-        { "<leader>goi", "<cmd>GoImports<cr>",      ft = "go", desc = "[Go] [I]mports" },
-        { "<leader>goa", "<cmd>GoAddTag<cr>",       ft = "go", desc = "[Go] [A]dd struct tags" },
-        { "<leader>goA", "<cmd>GoRemoveTag<cr>",    ft = "go", desc = "[Go] [A]remove struct tags" },
-        { "<leader>goe", "<cmd>GoIfErr<cr>",        ft = "go", desc = "[Go] Add if [E]rr" },
-        { "<leader>gof", "<cmd>GoFillStruct<cr>",   ft = "go", desc = "[Go] [F]ill struct" },
-        { "<leader>god", "<cmd>GoDoc<cr>",          ft = "go", desc = "[Go] [D]oc" },
-        { "<leader>gom", "<cmd>GoMetaLinter<cr>",   ft = "go", desc = "[Go] [M]eta linter" },
-        { "<leader>gol", "<cmd>GoLint<cr>",         ft = "go", desc = "[Go] [L]int" },
-        { "<leader>gov", "<cmd>GoVet<cr>",          ft = "go", desc = "[Go] [V]et" },
-        { "<leader>gox", "<cmd>GoAlternate<cr>",    ft = "go", desc = "[Go] Alternate (test file)" },
+        { "<leader>goi", "<cmd>GoImports<cr>", ft = "go", desc = "[Go] [I]mports" },
+        { "<leader>goa", "<cmd>GoAddTag<cr>", ft = "go", desc = "[Go] [A]dd struct tags" },
+        { "<leader>goA", "<cmd>GoRemoveTag<cr>", ft = "go", desc = "[Go] [A]remove struct tags" },
+        { "<leader>goe", "<cmd>GoIfErr<cr>", ft = "go", desc = "[Go] Add if [E]rr" },
+        { "<leader>gof", "<cmd>GoFillStruct<cr>", ft = "go", desc = "[Go] [F]ill struct" },
+        { "<leader>god", "<cmd>GoDoc<cr>", ft = "go", desc = "[Go] [D]oc" },
+        { "<leader>gom", "<cmd>GoMetaLinter<cr>", ft = "go", desc = "[Go] [M]eta linter" },
+        { "<leader>gol", "<cmd>GoLint<cr>", ft = "go", desc = "[Go] [L]int" },
+        { "<leader>gov", "<cmd>GoVet<cr>", ft = "go", desc = "[Go] [V]et" },
+        { "<leader>gox", "<cmd>GoAlternate<cr>", ft = "go", desc = "[Go] Alternate (test file)" },
     },
 }

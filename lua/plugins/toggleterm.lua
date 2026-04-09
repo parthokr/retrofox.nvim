@@ -5,7 +5,9 @@ return {
         -- Polished terminal highlights that adapt to the active colorscheme
         local function get_hl(name, attr)
             local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
-            if ok and hl[attr] then return string.format("#%06x", hl[attr]) end
+            if ok and hl[attr] then
+                return string.format("#%06x", hl[attr])
+            end
             return nil
         end
 
@@ -58,15 +60,19 @@ return {
             on_open = function(term)
                 -- Arrow keys in terminal mode: pass them directly to the shell
                 local opts = { buffer = term.bufnr, noremap = true, silent = true }
-                vim.keymap.set("t", "<Left>",  "<Left>",  opts)
+                vim.keymap.set("t", "<Left>", "<Left>", opts)
                 vim.keymap.set("t", "<Right>", "<Right>", opts)
-                vim.keymap.set("t", "<Up>",    "<Up>",    opts)
-                vim.keymap.set("t", "<Down>",  "<Down>",  opts)
+                vim.keymap.set("t", "<Up>", "<Up>", opts)
+                vim.keymap.set("t", "<Down>", "<Down>", opts)
             end,
             float_opts = {
                 border = "rounded",
-                width = function() return math.floor(vim.o.columns * 0.85) end,
-                height = function() return math.floor(vim.o.lines * 0.8) end,
+                width = function()
+                    return math.floor(vim.o.columns * 0.85)
+                end,
+                height = function()
+                    return math.floor(vim.o.lines * 0.8)
+                end,
                 winblend = 3,
                 title = " Terminal ",
                 title_pos = "center",
@@ -90,8 +96,12 @@ return {
             hidden = true,
             float_opts = {
                 border = "rounded",
-                width = function() return math.floor(vim.o.columns * 0.92) end,
-                height = function() return math.floor(vim.o.lines * 0.9) end,
+                width = function()
+                    return math.floor(vim.o.columns * 0.92)
+                end,
+                height = function()
+                    return math.floor(vim.o.lines * 0.9)
+                end,
                 title = " LazyGit ",
                 title_pos = "center",
                 highlights = {
@@ -101,7 +111,9 @@ return {
             },
         })
 
-        vim.keymap.set("n", "<leader>gg", function() lazygit:toggle() end, { desc = "Lazy[G]it" })
+        vim.keymap.set("n", "<leader>gg", function()
+            lazygit:toggle()
+        end, { desc = "Lazy[G]it" })
 
         -- Horizontal / vertical toggles
         vim.keymap.set("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", { desc = "[T]erminal [F]loat" })
@@ -109,8 +121,21 @@ return {
         vim.keymap.set("n", "<leader>ts", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "[T]erminal [S]plit" })
     end,
     keys = {
-        { "<C-\\>", function() require("toggleterm").toggle() end, desc = "Toggle terminal" },
+        {
+            "<C-\\>",
+            function()
+                require("toggleterm").toggle()
+            end,
+            desc = "Toggle terminal",
+        },
         { "<Esc><Esc>", "<C-\\><C-n>", desc = "Exit terminal mode", mode = "t" },
-        { "<C-\\>", function() require("toggleterm").toggle() end, desc = "Toggle terminal", mode = "t" },
+        {
+            "<C-\\>",
+            function()
+                require("toggleterm").toggle()
+            end,
+            desc = "Toggle terminal",
+            mode = "t",
+        },
     },
 }

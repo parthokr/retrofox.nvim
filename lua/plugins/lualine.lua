@@ -8,7 +8,9 @@ return {
         --- For jdt:// buffers, extract a clean class name from the URI.
         --- Returns nil for normal buffers so the default can be used.
         local function jdt_classname(bufname)
-            if not bufname or not bufname:match("^jdt://") then return nil end
+            if not bufname or not bufname:match("^jdt://") then
+                return nil
+            end
             -- jdt URI after decoding: …/<package>(ClassName.class?=…
             -- The ( separates the package path from the class file name.
             local decoded = utils.uri_decode(bufname)
@@ -20,13 +22,17 @@ return {
 
         local function macro_recording()
             local reg = vim.fn.reg_recording()
-            if reg == "" then return "" end
+            if reg == "" then
+                return ""
+            end
             return "󰑋 " .. reg
         end
 
         local function lsp_clients()
             local clients = vim.lsp.get_clients({ bufnr = 0 })
-            if #clients == 0 then return "" end
+            if #clients == 0 then
+                return ""
+            end
             if #clients == 1 then
                 return "󰒋 " .. clients[1].name
             end
@@ -41,7 +47,9 @@ return {
 
         local function word_count()
             local ft = vim.bo.filetype
-            if ft ~= "markdown" and ft ~= "text" and ft ~= "tex" then return "" end
+            if ft ~= "markdown" and ft ~= "text" and ft ~= "tex" then
+                return ""
+            end
             local wc = vim.fn.wordcount()
             return "󰈭 " .. (wc.visual_words or wc.words)
         end
@@ -51,7 +59,9 @@ return {
 
         local function hl(name)
             local ok, h = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
-            if ok then return h end
+            if ok then
+                return h
+            end
             return {}
         end
 
@@ -61,7 +71,6 @@ return {
         end
 
         local function get_custom_theme()
-
             local normal = hl("Normal")
             local comment = hl("Comment")
             local string_hl = hl("String")
@@ -123,15 +132,15 @@ return {
 
         -- ── Mode name mapping (short + iconic) ────────────────────
         local mode_map = {
-            ["NORMAL"]   = " NOR",
-            ["INSERT"]   = " INS",
-            ["VISUAL"]   = "󰈈 VIS",
-            ["V-LINE"]   = "󰈈 V·L",
-            ["V-BLOCK"]  = "󰈈 V·B",
-            ["COMMAND"]  = " CMD",
-            ["REPLACE"]  = " REP",
+            ["NORMAL"] = " NOR",
+            ["INSERT"] = " INS",
+            ["VISUAL"] = "󰈈 VIS",
+            ["V-LINE"] = "󰈈 V·L",
+            ["V-BLOCK"] = "󰈈 V·B",
+            ["COMMAND"] = " CMD",
+            ["REPLACE"] = " REP",
             ["TERMINAL"] = " TER",
-            ["SELECT"]   = "󰒉 SEL",
+            ["SELECT"] = "󰒉 SEL",
         }
 
         -- ── Shared lualine config (theme-aware) ────────────────────
@@ -154,7 +163,9 @@ return {
                     lualine_a = {
                         {
                             "mode",
-                            fmt = function(s) return mode_map[s] or s end,
+                            fmt = function(s)
+                                return mode_map[s] or s
+                            end,
                         },
                     },
                     lualine_b = {
@@ -217,8 +228,12 @@ return {
                             fmt = function()
                                 local cur = vim.fn.line(".")
                                 local total = vim.fn.line("$")
-                                if cur == 1 then return "Top" end
-                                if cur == total then return "Bot" end
+                                if cur == 1 then
+                                    return "Top"
+                                end
+                                if cur == total then
+                                    return "Bot"
+                                end
                                 return math.floor(cur / total * 100) .. "%%"
                             end,
                         },

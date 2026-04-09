@@ -10,9 +10,14 @@ function M.toggle_transparency()
 
     if vim.g.neovim_transparent then
         local groups = {
-            "Normal", "NormalNC", "NormalFloat", "SignColumn",
-            "NeoTreeNormal", "NeoTreeNormalNC",
-            "FloatBorder", "WinSeparator",
+            "Normal",
+            "NormalNC",
+            "NormalFloat",
+            "SignColumn",
+            "NeoTreeNormal",
+            "NeoTreeNormalNC",
+            "FloatBorder",
+            "WinSeparator",
         }
         for _, group in ipairs(groups) do
             vim.cmd("hi " .. group .. " guibg=NONE ctermbg=NONE")

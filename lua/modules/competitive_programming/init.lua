@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Competitive Programming (C++ compile & run + CP layout)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("competitive_programming") then return {} end
+if not require("retrofox.module").enabled("competitive_programming") then
+    return {}
+end
 
 local os_util = require("retrofox.os")
 

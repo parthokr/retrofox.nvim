@@ -112,7 +112,9 @@ return {
 
                 local count = 0
                 for _, file in ipairs(oldfiles) do
-                    if count >= 5 then break end
+                    if count >= 5 then
+                        break
+                    end
                     local path = vim.fn.expand(file)
                     if vim.fn.filereadable(path) == 1 then
                         count = count + 1

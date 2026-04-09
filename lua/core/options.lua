@@ -5,9 +5,13 @@ vim.opt.number = true
 -- Read from config.yaml (only the settings users actually change)
 local ok_rf, rf = pcall(require, "retrofox")
 local function cfg(path, default)
-    if not ok_rf then return default end
+    if not ok_rf then
+        return default
+    end
     local val = rf.get(path)
-    if val == nil then return default end
+    if val == nil then
+        return default
+    end
     return val
 end
 
@@ -44,9 +48,9 @@ vim.opt.wrap = false
 vim.opt.termguicolors = true
 
 -- Hover / floating-doc UX
-vim.opt.pumblend = 10         -- slight transparency on popup-menu
-vim.opt.winblend = 10         -- slight transparency on floating windows
-vim.opt.pumheight = 15        -- cap popup menu height
+vim.opt.pumblend = 10 -- slight transparency on popup-menu
+vim.opt.winblend = 10 -- slight transparency on floating windows
+vim.opt.pumheight = 15 -- cap popup menu height
 
 vim.api.nvim_create_autocmd("FileType", {
     desc = "Enable conceal for document filetypes",

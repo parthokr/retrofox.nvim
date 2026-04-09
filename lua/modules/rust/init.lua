@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Rust (rust-analyzer LSP)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("rust") then return {} end
+if not require("retrofox.module").enabled("rust") then
+    return {}
+end
 
 -- ── LSP: rust-analyzer ──────────────────────────────────────
 

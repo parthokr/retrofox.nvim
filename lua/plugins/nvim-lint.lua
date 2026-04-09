@@ -8,10 +8,18 @@ return {
 
             -- Build linters_by_ft based on enabled modules
             local linters = {}
-            if mod.enabled("python") then linters.python = { "ruff" } end
-            if mod.enabled("json") then linters.json = { "jsonlint" } end
-            if mod.enabled("markdown") then linters.markdown = { "markdownlint-cli2" } end
-            if mod.enabled("docker") then linters.dockerfile = { "hadolint" } end
+            if mod.enabled("python") then
+                linters.python = { "ruff" }
+            end
+            if mod.enabled("json") then
+                linters.json = { "jsonlint" }
+            end
+            if mod.enabled("markdown") then
+                linters.markdown = { "markdownlint-cli2" }
+            end
+            if mod.enabled("docker") then
+                linters.dockerfile = { "hadolint" }
+            end
 
             lint.linters_by_ft = linters
 

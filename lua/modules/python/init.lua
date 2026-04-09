@@ -1,7 +1,9 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: Python (basedpyright LSP)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("python") then return {} end
+if not require("retrofox.module").enabled("python") then
+    return {}
+end
 
 -- ── LSP: basedpyright ───────────────────────────────────────
 

@@ -18,13 +18,17 @@ return {
         -- ── Python DAP ──────────────────────────────────────
         if mod.enabled("python") then
             local ok, dap_python = pcall(require, "dap-python")
-            if ok then dap_python.setup("python3") end
+            if ok then
+                dap_python.setup("python3")
+            end
         end
 
         -- ── Go DAP ──────────────────────────────────────────
         if mod.enabled("go") then
             local ok, dap_go = pcall(require, "dap-go")
-            if ok then dap_go.setup() end
+            if ok then
+                dap_go.setup()
+            end
         end
 
         -- ── C/C++/Rust DAP (OS-aware auto-detect) ───────────
@@ -118,13 +122,61 @@ return {
         })
     end,
     keys = {
-        { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle [D]ebug [B]reakpoint" },
-        { "<leader>dc", function() require("dap").continue() end,          desc = "[D]ebug [C]ontinue" },
-        { "<leader>di", function() require("dap").step_into() end,         desc = "[D]ebug Step [I]nto" },
-        { "<leader>do", function() require("dap").step_out() end,          desc = "[D]ebug Step [O]ut" },
-        { "<leader>dr", function() require("dap").repl.open() end,         desc = "[D]ebug [R]epl" },
-        { "<leader>dj", function() require("dap").step_over() end,         desc = "[D]ebug Step Over" },
-        { "<leader>du", function() require("dapui").toggle() end,          desc = "[D]ebug [U]I" },
-        { "<leader>dt", function() require("dap").terminate() end,         desc = "[D]ebug [T]erminate" },
+        {
+            "<leader>db",
+            function()
+                require("dap").toggle_breakpoint()
+            end,
+            desc = "Toggle [D]ebug [B]reakpoint",
+        },
+        {
+            "<leader>dc",
+            function()
+                require("dap").continue()
+            end,
+            desc = "[D]ebug [C]ontinue",
+        },
+        {
+            "<leader>di",
+            function()
+                require("dap").step_into()
+            end,
+            desc = "[D]ebug Step [I]nto",
+        },
+        {
+            "<leader>do",
+            function()
+                require("dap").step_out()
+            end,
+            desc = "[D]ebug Step [O]ut",
+        },
+        {
+            "<leader>dr",
+            function()
+                require("dap").repl.open()
+            end,
+            desc = "[D]ebug [R]epl",
+        },
+        {
+            "<leader>dj",
+            function()
+                require("dap").step_over()
+            end,
+            desc = "[D]ebug Step Over",
+        },
+        {
+            "<leader>du",
+            function()
+                require("dapui").toggle()
+            end,
+            desc = "[D]ebug [U]I",
+        },
+        {
+            "<leader>dt",
+            function()
+                require("dap").terminate()
+            end,
+            desc = "[D]ebug [T]erminate",
+        },
     },
 }

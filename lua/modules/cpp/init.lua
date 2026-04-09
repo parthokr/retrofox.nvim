@@ -1,20 +1,22 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Module: C++ (clangd LSP + CMake integration)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if not require("retrofox.module").enabled("cpp") then return {} end
+if not require("retrofox.module").enabled("cpp") then
+    return {}
+end
 
 -- ── LSP: clangd (enhanced) ──────────────────────────────────
 vim.lsp.config["clangd"] = {
     cmd = vim.g.retrofox_clangd_cmd or {
         "clangd",
-        "--background-index",           -- index project in background
-        "--clang-tidy",                 -- inline clang-tidy diagnostics
-        "--header-insertion=iwyu",      -- auto-insert missing #includes
-        "--completion-style=detailed",  -- richer completion items
-        "--function-arg-placeholders",  -- snippet-style function args
-        "--fallback-style=llvm",        -- formatting fallback
-        "--all-scopes-completion",      -- complete from all scopes
-        "--pch-storage=memory",         -- faster PCH (trades RAM for speed)
+        "--background-index", -- index project in background
+        "--clang-tidy", -- inline clang-tidy diagnostics
+        "--header-insertion=iwyu", -- auto-insert missing #includes
+        "--completion-style=detailed", -- richer completion items
+        "--function-arg-placeholders", -- snippet-style function args
+        "--fallback-style=llvm", -- formatting fallback
+        "--all-scopes-completion", -- complete from all scopes
+        "--pch-storage=memory", -- faster PCH (trades RAM for speed)
     },
     root_markers = { "compile_commands.json", ".clangd", "CMakeLists.txt", ".git" },
     filetypes = { "c", "cc", "cpp", "objc", "objcpp" },
@@ -35,7 +37,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("clangd-keymaps", { clear = true }),
     callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if not client or client.name ~= "clangd" then return end
+        if not client or client.name ~= "clangd" then
+            return
+        end
 
         local buf = args.buf
         local map = function(mode, lhs, rhs, desc)
@@ -61,13 +65,18 @@ vim.api.nvim_create_user_command("CMakeGenerate", function(opts)
     local build_dir = opts.args ~= "" and opts.args or "build"
     local cmd = string.format(
         "cmake -B %s -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && ln -sf %s/compile_commands.json .",
-        build_dir, build_dir
+        build_dir,
+        build_dir
     )
     vim.notify("⏳ Running: " .. cmd, vim.log.levels.INFO, { title = "CMake" })
     vim.fn.jobstart(cmd, {
         on_exit = function(_, code)
             if code == 0 then
-                vim.notify("✅ CMake configured — compile_commands.json symlinked", vim.log.levels.INFO, { title = "CMake" })
+                vim.notify(
+                    "✅ CMake configured — compile_commands.json symlinked",
+                    vim.log.levels.INFO,
+                    { title = "CMake" }
+                )
             else
                 vim.notify("❌ CMake failed (exit " .. code .. ")", vim.log.levels.ERROR, { title = "CMake" })
             end

@@ -12,21 +12,31 @@ local checksum_path = data_dir .. "/.config_checksum"
 local _cache = nil
 
 --- @return string
-function M.config_path() return config_path end
+function M.config_path()
+    return config_path
+end
 
 --- @return string
-function M.data_dir() return data_dir end
+function M.data_dir()
+    return data_dir
+end
 
 --- Parse a YAML file via yq → JSON → vim.json.decode
 --- @param path string
 --- @return table|nil
 local function parse_yaml(path)
-    if vim.fn.filereadable(path) ~= 1 then return nil end
+    if vim.fn.filereadable(path) ~= 1 then
+        return nil
+    end
     local raw = vim.fn.system({ "yq", "-o=json", ".", path })
-    if vim.v.shell_error ~= 0 then return nil end
+    if vim.v.shell_error ~= 0 then
+        return nil
+    end
     local ok, data = pcall(vim.json.decode, raw)
     -- vim.json.decode("null") returns vim.NIL (userdata), not nil
-    if not ok or type(data) ~= "table" then return nil end
+    if not ok or type(data) ~= "table" then
+        return nil
+    end
     return data
 end
 
@@ -35,8 +45,12 @@ end
 --- @param t2 table
 --- @return table
 local function deep_merge(t1, t2)
-    if type(t1) ~= "table" then return t2 end
-    if type(t2) ~= "table" then return t1 end
+    if type(t1) ~= "table" then
+        return t2
+    end
+    if type(t2) ~= "table" then
+        return t1
+    end
     local result = vim.deepcopy(t1)
     for k, v in pairs(t2) do
         if type(v) == "table" and type(result[k]) == "table" and not vim.islist(v) then
@@ -60,9 +74,7 @@ function M.load()
     end
 
     -- Merge OS-specific overlay (config.darwin.yaml or config.linux.yaml)
-    local overlay_name = os_util.is_mac and "config.darwin.yaml"
-                      or os_util.is_linux and "config.linux.yaml"
-                      or nil
+    local overlay_name = os_util.is_mac and "config.darwin.yaml" or os_util.is_linux and "config.linux.yaml" or nil
     if overlay_name then
         local overlay_path = data_dir .. "/" .. overlay_name
         local overlay = parse_yaml(overlay_path)
@@ -79,12 +91,18 @@ end
 --- @param dotpath string
 --- @return any
 function M.get(dotpath)
-    if not _cache then M.load() end
-    if not _cache then return nil end
+    if not _cache then
+        M.load()
+    end
+    if not _cache then
+        return nil
+    end
     local keys = vim.split(dotpath, ".", { plain = true })
     local node = _cache
     for _, k in ipairs(keys) do
-        if type(node) ~= "table" then return nil end
+        if type(node) ~= "table" then
+            return nil
+        end
         node = node[k]
     end
     return node
@@ -100,7 +118,10 @@ local function ensure_config_exists()
         else
             -- Create a minimal config
             local f = io.open(config_path, "w")
-            if f then f:write("# retrofox.nvim config\n"); f:close() end
+            if f then
+                f:write("# retrofox.nvim config\n")
+                f:close()
+            end
         end
     end
 end
@@ -128,10 +149,14 @@ end
 --- Compute SHA-256 checksum of config.yaml
 --- @return string|nil
 function M.compute_checksum()
-    if vim.fn.filereadable(config_path) ~= 1 then return nil end
+    if vim.fn.filereadable(config_path) ~= 1 then
+        return nil
+    end
     local cmd = os_util.sha256_cmd(config_path)
     local result = vim.fn.system(cmd)
-    if vim.v.shell_error ~= 0 then return nil end
+    if vim.v.shell_error ~= 0 then
+        return nil
+    end
     return result:match("^(%S+)")
 end
 
@@ -141,7 +166,10 @@ function M.update_checksum()
     local sum = M.compute_checksum()
     if sum then
         local f = io.open(checksum_path, "w")
-        if f then f:write(sum); f:close() end
+        if f then
+            f:write(sum)
+            f:close()
+        end
     end
 end
 
@@ -149,10 +177,15 @@ end
 --- @return boolean
 function M.has_drift()
     local f = io.open(checksum_path, "r")
-    if not f then return true end -- no checksum file = treat as drifted
-    local stored = f:read("*l"); f:close()
+    if not f then
+        return true
+    end -- no checksum file = treat as drifted
+    local stored = f:read("*l")
+    f:close()
     local current = M.compute_checksum()
-    if not current then return false end -- no config file = nothing to drift
+    if not current then
+        return false
+    end -- no config file = nothing to drift
     return stored ~= current
 end
 

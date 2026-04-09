@@ -58,34 +58,36 @@ return {
                     theme = require("kanagawa")._CURRENT_THEME or "wave",
                     colors = require("kanagawa").config.colors,
                 })
-                if not ok then return end
+                if not ok then
+                    return
+                end
 
                 local theme = colors.theme
                 local bg = theme.ui.bg_p1
                 local set = vim.api.nvim_set_hl
 
                 -- Cmdline popup
-                set(0, "NoiceCmdline",                   { fg = theme.ui.fg, bg = bg })
-                set(0, "NoiceCmdlinePopup",              { fg = theme.ui.fg, bg = bg })
-                set(0, "NoiceCmdlinePopupBorder",        { fg = theme.ui.float.fg_border, bg = bg })
-                set(0, "NoiceCmdlinePopupTitle",         { fg = theme.syn.fun, bg = bg, bold = true })
+                set(0, "NoiceCmdline", { fg = theme.ui.fg, bg = bg })
+                set(0, "NoiceCmdlinePopup", { fg = theme.ui.fg, bg = bg })
+                set(0, "NoiceCmdlinePopupBorder", { fg = theme.ui.float.fg_border, bg = bg })
+                set(0, "NoiceCmdlinePopupTitle", { fg = theme.syn.fun, bg = bg, bold = true })
                 -- Per-kind borders
                 set(0, "NoiceCmdlinePopupBorderCmdline", { fg = theme.syn.fun, bg = bg })
-                set(0, "NoiceCmdlinePopupBorderSearch",  { fg = theme.diag.warning, bg = bg })
-                set(0, "NoiceCmdlinePopupBorderFilter",  { fg = theme.diag.info, bg = bg })
-                set(0, "NoiceCmdlinePopupBorderLua",     { fg = theme.syn.keyword, bg = bg })
-                set(0, "NoiceCmdlinePopupBorderHelp",    { fg = theme.diag.ok, bg = bg })
+                set(0, "NoiceCmdlinePopupBorderSearch", { fg = theme.diag.warning, bg = bg })
+                set(0, "NoiceCmdlinePopupBorderFilter", { fg = theme.diag.info, bg = bg })
+                set(0, "NoiceCmdlinePopupBorderLua", { fg = theme.syn.keyword, bg = bg })
+                set(0, "NoiceCmdlinePopupBorderHelp", { fg = theme.diag.ok, bg = bg })
                 -- Per-kind icons
-                set(0, "NoiceCmdlineIconCmdline",        { fg = theme.syn.fun })
-                set(0, "NoiceCmdlineIconSearch",         { fg = theme.diag.warning })
-                set(0, "NoiceCmdlineIconFilter",         { fg = theme.diag.info })
-                set(0, "NoiceCmdlineIconLua",            { fg = theme.syn.keyword })
-                set(0, "NoiceCmdlineIconHelp",           { fg = theme.diag.ok })
+                set(0, "NoiceCmdlineIconCmdline", { fg = theme.syn.fun })
+                set(0, "NoiceCmdlineIconSearch", { fg = theme.diag.warning })
+                set(0, "NoiceCmdlineIconFilter", { fg = theme.diag.info })
+                set(0, "NoiceCmdlineIconLua", { fg = theme.syn.keyword })
+                set(0, "NoiceCmdlineIconHelp", { fg = theme.diag.ok })
                 -- Popupmenu
-                set(0, "NoicePopupmenu",                 { fg = theme.ui.fg, bg = bg })
-                set(0, "NoicePopupmenuBorder",           { fg = theme.ui.float.fg_border, bg = bg })
-                set(0, "NoicePopupmenuSelected",         { bg = theme.ui.bg_p2 })
-                set(0, "NoicePopupmenuMatch",            { fg = theme.syn.fun, bold = true })
+                set(0, "NoicePopupmenu", { fg = theme.ui.fg, bg = bg })
+                set(0, "NoicePopupmenuBorder", { fg = theme.ui.float.fg_border, bg = bg })
+                set(0, "NoicePopupmenuSelected", { bg = theme.ui.bg_p2 })
+                set(0, "NoicePopupmenuMatch", { fg = theme.syn.fun, bold = true })
             end,
         })
     end,

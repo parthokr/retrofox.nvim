@@ -40,7 +40,9 @@ return {
 
         -- Blend two hex colors: t=0→c1, t=1→c2
         local function blend(c1, c2, t)
-            local function hex(s) return tonumber(s, 16) end
+            local function hex(s)
+                return tonumber(s, 16)
+            end
             c1, c2 = c1:gsub("#", ""), c2:gsub("#", "")
             local r = math.floor(hex(c1:sub(1, 2)) * (1 - t) + hex(c2:sub(1, 2)) * t)
             local g = math.floor(hex(c1:sub(3, 4)) * (1 - t) + hex(c2:sub(3, 4)) * t)
@@ -54,12 +56,12 @@ return {
 
             -- Source accent colors from semantic highlight groups
             local accents = {
-                get_fg("Function")    or "#7aa2f7",   -- blue
-                get_fg("Keyword")     or "#bb9af7",   -- purple
-                get_fg("String")      or "#9ece6a",   -- green
-                get_fg("Type")        or "#2ac3de",   -- cyan
-                get_fg("Constant")    or "#ff9e64",   -- orange
-                get_fg("Special")     or "#f7768e",   -- pink
+                get_fg("Function") or "#7aa2f7", -- blue
+                get_fg("Keyword") or "#bb9af7", -- purple
+                get_fg("String") or "#9ece6a", -- green
+                get_fg("Type") or "#2ac3de", -- cyan
+                get_fg("Constant") or "#ff9e64", -- orange
+                get_fg("Special") or "#f7768e", -- pink
             }
 
             for i, accent in ipairs(accents) do
@@ -76,15 +78,15 @@ return {
         -- ── Setup ───────────────────────────────────────────────
         require("ibl").setup({
             indent = {
-                char = "│",                       -- clean, minimal line
-                highlight = indent_hls,           -- rainbow gradient (subtle)
+                char = "│", -- clean, minimal line
+                highlight = indent_hls, -- rainbow gradient (subtle)
                 smart_indent_cap = true,
             },
             scope = {
                 enabled = true,
                 char = "│",
-                highlight = scope_hls,            -- rainbow scope (brighter)
-                show_start = false,               -- no underline clutter
+                highlight = scope_hls, -- rainbow scope (brighter)
+                show_start = false, -- no underline clutter
                 show_end = false,
                 show_exact_scope = true,
                 include = {

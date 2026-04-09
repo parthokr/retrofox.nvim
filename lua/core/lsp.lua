@@ -31,13 +31,17 @@ vim.diagnostic.config({
 local function set_inlay_hint_style()
     local function get_hl_fg(name)
         local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
-        if ok and hl.fg then return hl.fg end
+        if ok and hl.fg then
+            return hl.fg
+        end
         return nil
     end
 
     local function get_hl_bg(name)
         local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
-        if ok and hl.bg then return hl.bg end
+        if ok and hl.bg then
+            return hl.bg
+        end
         return nil
     end
 
@@ -66,7 +70,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
     callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if not client then return end
+        if not client then
+            return
+        end
 
         local buf = args.buf
         local map = function(mode, lhs, rhs, desc)

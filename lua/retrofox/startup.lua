@@ -24,15 +24,15 @@ local os_util = require("retrofox.os")
 -- We prepend common tool directories if they exist and aren't present.
 do
     local extra_paths = {
-        vim.env.HOME .. "/.local/bin",  -- npm --prefix ~/.local installs here
+        vim.env.HOME .. "/.local/bin", -- npm --prefix ~/.local installs here
     }
 
     -- macOS: Homebrew paths may be missing from GUI-launched Neovim
     if os_util.is_mac then
         vim.list_extend(extra_paths, {
-            "/opt/homebrew/bin",        -- Apple Silicon
+            "/opt/homebrew/bin", -- Apple Silicon
             "/opt/homebrew/sbin",
-            "/usr/local/bin",           -- Intel
+            "/usr/local/bin", -- Intel
             "/usr/local/sbin",
         })
     end
@@ -52,13 +52,13 @@ end
 -- ── 1. Load config ──────────────────────────────────────────
 
 local cfg = rf.load()
-if not cfg then return end
+if not cfg then
+    return
+end
 
 -- ── 2. Load OS-specific Lua overlay ─────────────────────────
 
-local overlay_module = os_util.is_mac and "os.darwin"
-                    or os_util.is_linux and "os.linux"
-                    or nil
+local overlay_module = os_util.is_mac and "os.darwin" or os_util.is_linux and "os.linux" or nil
 if overlay_module then
     pcall(require, overlay_module)
 end
@@ -72,7 +72,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
         if rf.has_drift() then
             vim.notify(
                 "  retrofox: config.yaml has changed.\n"
-                .. "  Run :RetrofoxApply to re-apply, or :RetrofoxSync to update checksum.",
+                    .. "  Run :RetrofoxApply to re-apply, or :RetrofoxSync to update checksum.",
                 vim.log.levels.WARN,
                 { title = "retrofox" }
             )
@@ -95,7 +95,9 @@ vim.api.nvim_create_user_command("RetrofoxApply", function()
 
     -- Re-apply editor options
     local ed = new_cfg.editor or {}
-    if ed.relative_numbers ~= nil then vim.opt.relativenumber = ed.relative_numbers end
+    if ed.relative_numbers ~= nil then
+        vim.opt.relativenumber = ed.relative_numbers
+    end
     if ed.tab_width then
         vim.opt.tabstop = ed.tab_width
         vim.opt.shiftwidth = ed.tab_width
@@ -112,27 +114,27 @@ vim.api.nvim_create_user_command("RetrofoxApply", function()
     -- ── Clean up disabled modules ───────────────────────────
     -- Module → Mason packages mapping
     local module_packages = {
-        python     = { "basedpyright", "debugpy", "isort", "ruff" },
+        python = { "basedpyright", "debugpy", "isort", "ruff" },
         typescript = { "ts_ls", "eslint", "prettier" },
-        go         = { "gopls", "delve" },
-        cpp        = { "clangd", "clang-format" },
-        rust       = { "rust-analyzer" },
-        java       = { "jdtls", "google-java-format" },
-        docker     = { "dockerls", "hadolint" },
-        json       = { "json-lsp", "jsonlint" },
-        markdown   = { "markdownlint-cli2" },
+        go = { "gopls", "delve" },
+        cpp = { "clangd", "clang-format" },
+        rust = { "rust-analyzer" },
+        java = { "jdtls", "google-java-format" },
+        docker = { "dockerls", "hadolint" },
+        json = { "json-lsp", "jsonlint" },
+        markdown = { "markdownlint-cli2" },
     }
 
     -- Module → LSP server names
     local module_lsp = {
-        python     = { "basedpyright" },
+        python = { "basedpyright" },
         typescript = { "ts_ls", "eslint" },
-        go         = { "gopls" },
-        cpp        = { "clangd" },
-        rust       = { "rust_analyzer" },
-        java       = { "jdtls" },
-        docker     = { "dockerls" },
-        json       = { "jsonls" },
+        go = { "gopls" },
+        cpp = { "clangd" },
+        rust = { "rust_analyzer" },
+        java = { "jdtls" },
+        docker = { "dockerls" },
+        json = { "jsonls" },
     }
 
     local cleaned = {}

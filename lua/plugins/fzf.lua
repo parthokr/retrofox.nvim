@@ -196,8 +196,6 @@ return {
             })
         end)
 
-
-
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         -- Git
         -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -232,46 +230,46 @@ return {
     opts = {
         -- ── Window ──────────────────────────────────────────
         winopts = {
-            height  = 0.85,
-            width   = 0.85,
-            row     = 0.5,
-            col     = 0.5,
-            border  = "rounded",
+            height = 0.85,
+            width = 0.85,
+            row = 0.5,
+            col = 0.5,
+            border = "rounded",
             backdrop = 60,
             preview = {
-                layout   = "flex",       -- auto switch horizontal↔vertical
-                flip_columns = 130,      -- switch to vertical when < 130 cols
+                layout = "flex", -- auto switch horizontal↔vertical
+                flip_columns = 130, -- switch to vertical when < 130 cols
                 scrollbar = "border",
-                delay    = 60,           -- slight delay to avoid flicker while scrolling
-                title    = true,
+                delay = 60, -- slight delay to avoid flicker while scrolling
+                title = true,
             },
         },
 
         -- ── FZF binary options ──────────────────────────────
         fzf_opts = {
-            ["--layout"]         = "reverse",
-            ["--info"]           = "inline-right",
-            ["--cycle"]          = true,
+            ["--layout"] = "reverse",
+            ["--info"] = "inline-right",
+            ["--cycle"] = true,
             ["--highlight-line"] = true,
-            ["--marker"]         = "▏",
-            ["--pointer"]        = "▌",
-            ["--header-first"]   = true,
+            ["--marker"] = "▏",
+            ["--pointer"] = "▌",
+            ["--header-first"] = true,
         },
 
         -- ── Key bindings inside FZF ─────────────────────────
         keymap = {
             fzf = {
-                ["ctrl-q"]     = "select-all+accept",   -- send all/selected to quickfix
-                ["ctrl-u"]     = "half-page-up",
-                ["ctrl-d"]     = "half-page-down",
-                ["ctrl-a"]     = "toggle-all",
+                ["ctrl-q"] = "select-all+accept", -- send all/selected to quickfix
+                ["ctrl-u"] = "half-page-up",
+                ["ctrl-d"] = "half-page-down",
+                ["ctrl-a"] = "toggle-all",
             },
             builtin = {
-                ["<C-s>"]  = "split",
-                ["<C-v>"]  = "vsplit",
-                ["<C-t>"]  = "tabedit",
-                ["<C-f>"]  = "preview-page-down",
-                ["<C-b>"]  = "preview-page-up",
+                ["<C-s>"] = "split",
+                ["<C-v>"] = "vsplit",
+                ["<C-t>"] = "tabedit",
+                ["<C-f>"] = "preview-page-down",
+                ["<C-b>"] = "preview-page-up",
             },
         },
 
@@ -280,26 +278,31 @@ return {
 
         -- ── Files ───────────────────────────────────────────
         files = {
-            formatter   = "path.filename_first",
-            git_icons   = true,
-            header      = "Actions: ctrl-s split │ ctrl-v vsplit │ ctrl-t tab",
+            formatter = "path.filename_first",
+            git_icons = true,
+            header = "Actions: ctrl-s split │ ctrl-v vsplit │ ctrl-t tab",
         },
 
         -- ── Grep ────────────────────────────────────────────
         grep = {
-            formatter   = "path.filename_first",
-            header      = "Actions: ctrl-q quickfix │ ctrl-s split │ ctrl-v vsplit",
-            rg_opts     = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
+            formatter = "path.filename_first",
+            header = "Actions: ctrl-q quickfix │ ctrl-s split │ ctrl-v vsplit",
+            rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
             multiprocess = true,
         },
 
         -- ── Buffers ─────────────────────────────────────────
         buffers = {
-            formatter    = "path.filename_first",
+            formatter = "path.filename_first",
             sort_lastused = true,
-            header       = "Actions: ctrl-x close │ ctrl-s split │ ctrl-v vsplit",
-            actions      = {
-                ["ctrl-x"] = { fn = function(...) return require("fzf-lua.actions").buf_del(...) end, reload = true },
+            header = "Actions: ctrl-x close │ ctrl-s split │ ctrl-v vsplit",
+            actions = {
+                ["ctrl-x"] = {
+                    fn = function(...)
+                        return require("fzf-lua.actions").buf_del(...)
+                    end,
+                    reload = true,
+                },
             },
         },
 
