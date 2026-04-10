@@ -27,6 +27,18 @@ vim.diagnostic.config({
     },
 })
 
+-- Fix for markdown escape characters (e.g. `\*` showing as `\*v` instead of `*v`) in hover windows.
+-- Neovim's built-in markdown renderer requires conceallevel=2 to hide backslashes.
+local default_hover = vim.lsp.handlers["textDocument/hover"]
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+    local bufnr, winnr = default_hover(err, result, ctx, config)
+    if winnr then
+        vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local", win = winnr })
+        vim.api.nvim_set_option_value("concealcursor", "n", { scope = "local", win = winnr })
+    end
+    return bufnr, winnr
+end
+
 -- Polished inlay hint styling (adapts to any colorscheme)
 local function set_inlay_hint_style()
     local function get_hl_fg(name)
@@ -64,26 +76,6 @@ end
 
 set_inlay_hint_style()
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_inlay_hint_style })
-
--- Strip markdown escape sequences (e.g. \* → *) from LSP hover content.
--- LSP servers send these to prevent markdown rendering, but Neovim's
--- treesitter markdown parser shows the backslash literally.
-local function strip_markdown_escapes(s)
-    return s:gsub("\\([\\`%*_{}%[%]%(%)#+%-%.!|])", "%1")
-end
-
-vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
-    if result and result.contents then
-        if type(result.contents) == "string" then
-            result.contents = strip_markdown_escapes(result.contents)
-        elseif type(result.contents) == "table" then
-            if result.contents.value then
-                result.contents.value = strip_markdown_escapes(result.contents.value)
-            end
-        end
-    end
-    return vim.lsp.handlers.hover(err, result, ctx, config)
-end
 
 -- Centralized LspAttach: buffer-local keymaps + inlay hints for all LSP servers
 vim.api.nvim_create_autocmd("LspAttach", {
