@@ -19,6 +19,14 @@ local JAVA_PROJECT_MARKERS = {
     ".project",
 }
 
+-- Markers that indicate a multi-module project root (not just a submodule)
+local MULTI_MODULE_ROOT_MARKERS = {
+    "settings.gradle",
+    "settings.gradle.kts",
+    "gradlew",
+    "mvnw",
+}
+
 local AUGROUP = vim.api.nvim_create_augroup("RetrofoxJavaJdtls", { clear = true })
 local is_java_project = vim.fs.root(vim.fn.getcwd(), JAVA_PROJECT_MARKERS) ~= nil
 
@@ -44,25 +52,50 @@ local function get_jdtls_launcher(jdtls_path)
     return vim.split(launcher_glob, "\n")[1]
 end
 
+--- Find the outermost project root (walks up from nearest marker to find
+--- settings.gradle/gradlew). Multi-module projects require the outermost root
+--- so that Gradle can resolve inter-module dependencies (project(':libs:core') etc.).
+local function find_outermost_root(start_dir)
+    local outermost = start_dir
+    local parent = vim.fs.dirname(start_dir)
+    while parent and parent ~= outermost and parent ~= "/" do
+        local candidate = vim.fs.root(parent, MULTI_MODULE_ROOT_MARKERS)
+        if candidate then
+            outermost = candidate
+            parent = vim.fs.dirname(candidate)
+        else
+            break
+        end
+    end
+    return outermost
+end
+
 local function resolve_root_dir(bufnr)
     local root_dir = vim.fs.root(bufnr, JAVA_PROJECT_MARKERS)
-    if root_dir then
-        return root_dir
-    end
 
     local bufname = vim.api.nvim_buf_get_name(bufnr)
-    if bufname ~= "" then
+    if not root_dir and bufname ~= "" then
         root_dir = vim.fs.root(bufname, JAVA_PROJECT_MARKERS)
-        if root_dir then
-            return root_dir
-        end
-
-        -- Fall back to the directory containing the file for truly standalone .java scripts
-        return vim.fs.dirname(bufname)
     end
 
-    -- Current working directory as an absolute last resort
-    return vim.fn.getcwd()
+    local result
+    if root_dir then
+        -- Always walk up to the outermost root so JDTLS can resolve all
+        -- inter-module dependencies via the root settings.gradle/pom.xml.
+        result = find_outermost_root(root_dir)
+    elseif bufname ~= "" then
+        -- Fall back to the directory containing the file for truly standalone .java scripts
+        result = vim.fs.dirname(bufname)
+    else
+        -- Current working directory as an absolute last resort
+        result = vim.fn.getcwd()
+    end
+
+    -- Resolve symlinks so the workspace hash is stable across sessions.
+    -- (On macOS, /tmp -> /private/tmp; inconsistent paths = different hashes = cache miss)
+    local uv = vim.uv or vim.loop
+    local real = uv.fs_realpath(result)
+    return real or result
 end
 
 local function workspace_dir(root_dir)
@@ -103,8 +136,16 @@ local function setup_jdtls(bufnr)
             "-Dosgi.bundles.defaultStartLevel=4",
             "-Declipse.product=org.eclipse.jdt.ls.core.product",
             "-Dlog.protocol=true",
-            "-Dlog.level=ALL",
-            "-Xmx1g",
+            "-Dlog.level=WARN",
+            "-Xmx6g",
+            "-Xms2g",
+            -- ParallelGC maximizes throughput (faster indexing) at the cost of
+            -- longer GC pauses — acceptable since the editor is barely usable
+            -- during initial import anyway.
+            "-XX:+UseParallelGC",
+            "-XX:ParallelGCThreads=8",
+            "-XX:+UseCompressedOops",
+            "-XX:+OptimizeStringConcat",
             "--add-modules=ALL-SYSTEM",
             "--add-opens",
             "java.base/java.util=ALL-UNNAMED",
@@ -157,9 +198,34 @@ local function setup_jdtls(bufnr)
                 },
                 signatureHelp = { enabled = true, description = { enabled = true } },
                 contentProvider = { preferred = "fernflower" },
-                referencesCodeLens = { enabled = true },
-                implementationsCodeLens = { enabled = true },
+                referencesCodeLens = { enabled = false },
+                implementationsCodeLens = { enabled = false },
+                autobuild = { enabled = false },
+                configuration = {
+                    -- Prompt before re-running Gradle/Maven sync when build files change.
+                    -- Prevents automatic re-imports on startup; use <leader>ju to sync manually.
+                    updateBuildConfiguration = "interactive",
+                },
+                import = {
+                    gradle = {
+                        enabled = true,
+                        wrapper = { enabled = true },
+                        offline = { enabled = true },
+                        arguments = { "--parallel" },
+                        jvmArguments = { "-Xmx4g" },
+                    },
+                    exclusions = {
+                        "**/node_modules/**",
+                        "**/.metadata/**",
+                        "**/archetype-resources/**",
+                        "**/META-INF/maven/**",
+                    },
+                },
             },
+        },
+        flags = {
+            allow_incremental_sync = true,
+            debounce_text_changes = 150,
         },
         init_options = { bundles = {} },
         on_attach = function(_, attached_bufnr)
