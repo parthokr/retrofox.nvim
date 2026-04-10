@@ -65,6 +65,26 @@ end
 set_inlay_hint_style()
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_inlay_hint_style })
 
+-- Strip markdown escape sequences (e.g. \* → *) from LSP hover content.
+-- LSP servers send these to prevent markdown rendering, but Neovim's
+-- treesitter markdown parser shows the backslash literally.
+local function strip_markdown_escapes(s)
+    return s:gsub("\\([\\`%*_{}%[%]%(%)#+%-%.!|])", "%1")
+end
+
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+    if result and result.contents then
+        if type(result.contents) == "string" then
+            result.contents = strip_markdown_escapes(result.contents)
+        elseif type(result.contents) == "table" then
+            if result.contents.value then
+                result.contents.value = strip_markdown_escapes(result.contents.value)
+            end
+        end
+    end
+    return vim.lsp.handlers.hover(err, result, ctx, config)
+end
+
 -- Centralized LspAttach: buffer-local keymaps + inlay hints for all LSP servers
 vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
