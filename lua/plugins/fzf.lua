@@ -202,23 +202,23 @@ return {
 
         local git_prompt = "  "
 
-        map("<leader>fgc", "[G]it [C]ommits", function()
+        map("<leader>gfc", "[G]it [F]ind [C]ommits", function()
             fzf.git_commits({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Commits ") })
         end)
 
-        map("<leader>fgC", "[G]it Buffer [C]ommits", function()
+        map("<leader>gfC", "[G]it [F]ind Buffer [C]ommits", function()
             fzf.git_bcommits({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Buffer Commits ") })
         end)
 
-        map("<leader>fgs", "[G]it [S]tatus", function()
+        map("<leader>gfs", "[G]it [F]ind [S]tatus", function()
             fzf.git_status({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Status ") })
         end)
 
-        map("<leader>fgS", "[G]it [S]tash", function()
+        map("<leader>gfS", "[G]it [F]ind [S]tash", function()
             fzf.git_stash({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Stash ") })
         end)
 
-        map("<leader>fgb", "[G]it [B]lame", function()
+        map("<leader>gfb", "[G]it [F]ind [B]lame", function()
             fzf.git_blame({ prompt = git_prompt, resume = true, winopts = winopts_titled(" Git Blame ") })
         end)
     end,
