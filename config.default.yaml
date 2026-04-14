@@ -18,6 +18,7 @@ modules:
   markdown: false
   copilot: false
   competitive_programming: false
+  lean: false
 
 editor:
   tab_width: 4

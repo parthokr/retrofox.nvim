@@ -54,6 +54,20 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
         -- Type hierarchy
         map("n", "<leader>ct", "<cmd>ClangdTypeHierarchy<CR>", "[C]langd [T]ype Hierarchy")
+        
+        -- Check for compile_commands.json to prevent silent degradation failure
+        vim.schedule(function()
+            local root_dir = client.workspace_folders and client.workspace_folders[1].name or vim.fn.getcwd()
+            local has_cdb = vim.fn.filereadable(root_dir .. "/compile_commands.json") == 1 
+                         or vim.fn.filereadable(root_dir .. "/build/compile_commands.json") == 1
+            if not has_cdb then
+                vim.notify(
+                    "⚠️ No compile_commands.json found!\nClangd cannot find include paths without it.\nYou will see 'Too many errors emitted' and cascading failures.\nUse :CMakeGenerate or configure your build to fix this.",
+                    vim.log.levels.WARN,
+                    { title = "clangd" }
+                )
+            end
+        end)
     end,
 })
 

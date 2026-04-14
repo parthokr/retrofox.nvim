@@ -92,6 +92,7 @@ return {
             action("c", "󰒓", "Config", "<cmd>FzfLua files cwd=" .. vim.fn.stdpath("config") .. "<CR>"),
             action("t", "󰏘", "Themes", "<cmd>lua require('theme-picker').open()<CR>"),
             action("l", "󰒲", "Lazy", "<cmd>Lazy<CR>"),
+            action("m", "󱌣", "Mason", "<cmd>Mason<CR>"),
             action("q", "󰗼", "Quit", "<cmd>qa<CR>"),
         }
         dashboard.section.buttons.opts.spacing = 0
