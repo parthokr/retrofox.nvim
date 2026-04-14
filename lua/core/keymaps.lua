@@ -18,11 +18,7 @@ end, { desc = "Go to next diagnostic" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 vim.keymap.set("n", "<leader>de", vim.diagnostic.open_float, { desc = "Open [D]iagnostic [E]rror float" })
 
--- Disable arrow keys in normal mode
-vim.keymap.set("n", "<left>", "<Nop>", { silent = true, desc = "Disable left arrow" })
-vim.keymap.set("n", "<right>", "<Nop>", { silent = true, desc = "Disable right arrow" })
-vim.keymap.set("n", "<up>", "<Nop>", { silent = true, desc = "Disable up arrow" })
-vim.keymap.set("n", "<down>", "<Nop>", { silent = true, desc = "Disable down arrow" })
+
 
 -- Split navigation with CTRL+<hjkl>
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
