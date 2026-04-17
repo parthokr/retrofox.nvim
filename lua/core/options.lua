@@ -73,8 +73,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.api.nvim_create_autocmd("TermOpen", {
     group = vim.api.nvim_create_augroup("custom-term-open", { clear = true }),
     callback = function()
-        vim.opt.number = false
-        vim.opt.relativenumber = false
+        vim.opt_local.number = false
+        vim.opt_local.relativenumber = false
     end,
 })
 
@@ -88,6 +88,5 @@ vim.opt.shiftwidth = tab_width
 vim.opt.softtabstop = tab_width
 vim.opt.smarttab = true
 
--- Do not affect register when deleting a character
-vim.keymap.set("n", "x", '"_x')
+
 vim.opt.fillchars = { diff = "╱", eob = " " }

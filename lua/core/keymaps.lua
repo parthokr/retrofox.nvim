@@ -32,8 +32,9 @@ vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
--- Delete line without affecting register
+-- Delete without affecting register
 vim.keymap.set("n", "dD", '"_dd', { desc = "Delete line without affecting register" })
+vim.keymap.set("n", "x", '"_x', { desc = "Delete char without affecting register" })
 
 -- Copilot toggle (only when copilot module is enabled)
 if require("retrofox.module").enabled("copilot") then
@@ -50,10 +51,8 @@ end
 -- Buffer navigation
 vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Switch to next buffer" })
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Switch to previous buffer" })
-vim.keymap.set("n", "<leader>bd", "<cmd>Bdelete<CR>", { desc = "Close buffer (keep window)" })
 
--- Quick save
-vim.keymap.set({ "n", "i" }, "<C-s>", "<cmd>w<CR>", { desc = "Save file" })
+
 
 -- Copy full file path
 vim.keymap.set("n", "<leader>fp", function()

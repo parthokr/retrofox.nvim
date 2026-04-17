@@ -30,15 +30,6 @@ return {
             )
         end
 
-        local function lighten(hex, amount)
-            local r, g, b = hex_to_rgb(hex)
-            return string.format(
-                "#%02x%02x%02x",
-                math.min(255, r + amount),
-                math.min(255, g + amount),
-                math.min(255, b + amount)
-            )
-        end
 
         local function blend(c1, c2, t)
             local r1, g1, b1 = hex_to_rgb(c1)
@@ -235,5 +226,14 @@ return {
                 vim.defer_fn(setup_bufferline, 0)
             end,
         })
+
+        -- Buffer delete (safe: vim-bbye is a dependency, guaranteed loaded here)
+        vim.keymap.set("n", "<leader>bd", function()
+            if vim.fn.exists(":Bdelete") == 2 then
+                vim.cmd("Bdelete")
+            else
+                vim.cmd("bdelete")
+            end
+        end, { desc = "Close buffer (keep window)" })
     end,
 }

@@ -29,15 +29,23 @@ vim.diagnostic.config({
 
 -- Fix for markdown escape characters (e.g. `\*` showing as `\*v` instead of `*v`) in hover windows.
 -- Neovim's built-in markdown renderer requires conceallevel=2 to hide backslashes.
-local default_hover = vim.lsp.handlers["textDocument/hover"]
-vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
-    local bufnr, winnr = default_hover(err, result, ctx, config)
-    if winnr then
-        vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local", win = winnr })
-        vim.api.nvim_set_option_value("concealcursor", "n", { scope = "local", win = winnr })
-    end
-    return bufnr, winnr
-end
+-- Uses WinNew autocmd instead of deprecated vim.lsp.handlers override.
+vim.api.nvim_create_autocmd("WinNew", {
+    group = vim.api.nvim_create_augroup("lsp-float-conceal", { clear = true }),
+    callback = function()
+        vim.schedule(function()
+            local win = vim.api.nvim_get_current_win()
+            if not vim.api.nvim_win_is_valid(win) then
+                return
+            end
+            local config = vim.api.nvim_win_get_config(win)
+            if config.relative ~= "" then
+                vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local", win = win })
+                vim.api.nvim_set_option_value("concealcursor", "n", { scope = "local", win = win })
+            end
+        end)
+    end,
+})
 
 -- Polished inlay hint styling (adapts to any colorscheme)
 local function set_inlay_hint_style()
@@ -58,8 +66,12 @@ local function set_inlay_hint_style()
     end
 
     local function blend(fg_hex, bg_hex, alpha)
-        local fg_r, fg_g, fg_b = bit.rshift(fg_hex, 16), bit.band(bit.rshift(fg_hex, 8), 0xFF), bit.band(fg_hex, 0xFF)
-        local bg_r, bg_g, bg_b = bit.rshift(bg_hex, 16), bit.band(bit.rshift(bg_hex, 8), 0xFF), bit.band(bg_hex, 0xFF)
+        local fg_r = math.floor(fg_hex / 65536) % 256
+        local fg_g = math.floor(fg_hex / 256) % 256
+        local fg_b = fg_hex % 256
+        local bg_r = math.floor(bg_hex / 65536) % 256
+        local bg_g = math.floor(bg_hex / 256) % 256
+        local bg_b = bg_hex % 256
         local r = math.floor(fg_r * alpha + bg_r * (1 - alpha))
         local g = math.floor(fg_g * alpha + bg_g * (1 - alpha))
         local b = math.floor(fg_b * alpha + bg_b * (1 - alpha))
