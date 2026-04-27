@@ -116,7 +116,7 @@ return {
                     if count >= 5 then
                         break
                     end
-                    local path = vim.fn.expand(file)
+                    local path = vim.fn.expand(vim.fn.fnameescape(file))
                     if vim.fn.filereadable(path) == 1 then
                         count = count + 1
 
