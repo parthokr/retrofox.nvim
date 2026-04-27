@@ -21,6 +21,21 @@ vim.opt.showmode = false
 
 vim.schedule(function()
     vim.opt.clipboard = "unnamedplus"
+
+    -- Use OSC 52 over SSH so yanks reach the local (Mac) clipboard
+    if os.getenv("SSH_TTY") then
+        vim.g.clipboard = {
+            name = "OSC 52",
+            copy = {
+                ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+                ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+            },
+            paste = {
+                ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+                ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+            },
+        }
+    end
 end)
 
 vim.opt.breakindent = true
