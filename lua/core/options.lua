@@ -20,8 +20,6 @@ vim.opt.mouse = "a"
 vim.opt.showmode = false
 
 vim.schedule(function()
-    vim.opt.clipboard = "unnamedplus"
-
     -- Use OSC 52 over SSH so yanks reach the local (Mac) clipboard
     if os.getenv("SSH_TTY") then
         vim.g.clipboard = {
@@ -36,6 +34,8 @@ vim.schedule(function()
             },
         }
     end
+
+    vim.opt.clipboard = "unnamedplus"
 end)
 
 vim.opt.breakindent = true
